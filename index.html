@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="分子对称性与点群的交互图解：可拖动的 3D 模型上亲手执行对称操作，按 Schoenflies 流程判定点群，结论由脚本从坐标重新核验，单文件可离线打开。">
+<title>Molecular Symmetry Graph｜分子对称性图解</title>
+<style>
+:root{
+  --paper:#f6f5f1; --surface:#ffffff; --surface-2:#efede7;
+  --ink:#1c1e22; --ink-soft:#5c6068; --rule:#dbd7cc;
+  --c2:#c23b28; --sxz:#2a66ad; --syz:#15836a; --wash:#f6e3de;
+  --display:"Songti SC","Noto Serif CJK SC","Source Han Serif SC",Georgia,"Times New Roman","STSong","SimSun",serif;
+  --body:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+  --math:"Cambria Math","STIX Two Math","STIX Two Text",Cambria,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --paper:#111316; --surface:#181b20; --surface-2:#1f2329; --ink:#e9e7e2; --ink-soft:#9ca1a9; --rule:#2c3138;
+  --c2:#ff7b62; --sxz:#6ea8ff; --syz:#4fd2a6; --wash:#2f1a16; color-scheme:dark;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding-inline:20px}
+i{font-family:var(--math);font-style:italic}
+sub{font-family:var(--math);line-height:0}
+header{padding-block:56px 40px;border-bottom:1px solid var(--rule)}
+.brand{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;color:var(--c2);margin:0 0 30px}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(30px,6.5vw,52px);line-height:1.15;letter-spacing:-.01em;margin:0 0 18px;text-wrap:balance}
+header p{color:var(--ink-soft);max-width:62ch;margin:0;font-size:16px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin:26px 0 0;padding:0;list-style:none}
+.legend li{font-size:12.5px;background:var(--surface);border:1px solid var(--rule);border-radius:999px;padding:4px 13px 4px 10px}
+.sw{display:inline-block;width:22px;height:11px;border-radius:2px;margin-right:8px;vertical-align:-1px}
+.sw-c2{height:0;border-top:2.5px solid var(--c2);vertical-align:3px}
+.sw-sxz{background:color-mix(in srgb,var(--sxz) 22%,transparent);border:1.5px solid var(--sxz)}
+.sw-syz{background:color-mix(in srgb,var(--syz) 22%,transparent);border:1.5px solid var(--syz)}
+main{padding-block:40px 20px}
+.group{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--ink-soft);margin:0 0 14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+a.card{display:block;background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--c2);border-radius:7px;padding:22px 24px;text-decoration:none;color:inherit;min-width:0}
+a.card:hover{background:var(--surface-2)}
+a.card:focus-visible{outline:2px solid var(--sxz);outline-offset:3px}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--c2);background:var(--wash);padding:3px 8px;border-radius:4px;display:inline-block}
+a.card h2{font-family:var(--display);font-weight:600;font-size:21px;line-height:1.4;margin:14px 0 8px}
+a.card p{color:var(--ink-soft);font-size:13.5px;margin:0 0 14px}
+.open{color:var(--c2);font-size:13px;font-weight:600}
+.count{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);margin:34px 0 0}
+.note{background:var(--surface-2);border-left:3px solid var(--rule);padding:14px 18px;margin:20px 0 0;font-size:13px;color:var(--ink-soft)}
+footer{border-top:1px solid var(--rule);margin-top:40px;padding-block:22px 48px;font-size:12px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <p class="brand">MOLECULAR SYMMETRY GRAPH</p>
+  <h1>做完一个动作，<br>看分子还认不认得出自己。</h1>
+  <p>分子对称性与点群的交互图解。每一页都在可拖动的 3D 模型上亲手执行对称操作：同种原子全部落回原位才算数。点群结论不靠背，由脚本从原子坐标重新穷举对称元素来核验。单文件，可离线打开。</p>
+  <ul class="legend">
+    <li><span class="sw sw-c2"></span>旋转轴 <i>C</i><sub>n</sub></li>
+    <li><span class="sw sw-sxz"></span>垂直于分子平面的镜面</li>
+    <li><span class="sw sw-syz"></span>分子平面</li>
+  </ul>
+</div></header>
+
+<main class="wrap">
+  <p class="group">01 / 点群判定</p>
+  <div class="cards">
+    <a class="card" href="./topics/c2v-phenanthroline-sncl2/index.html">
+      <span class="tag">C2v · Schoenflies 流程 · VSEPR · 特征标表</span>
+      <h2>邻二氮菲和 SnCl₂ 长得毫不相干，为什么同属 <i>C</i><sub>2v</sub>？</h2>
+      <p>题 1-22。3D 实验台上执行 <i>E</i>、<i>C</i><sub>2</sub>、两个 <i>σ</i><sub>v</sub> 和四个会失败的候选操作；SnCl₂ 键角滑块拉到 180° 看点群升为 <i>D</i><sub>∞h</sub>；对比蒽、菲、1,7-菲咯啉、HgCl₂；延伸到 Γ<sub>3N</sub> 约化与振动计数。</p>
+      <span class="open">打开专题 →</span>
+    </a>
+  </div>
+  <p class="count">当前收录 1 个专题</p>
+  <div class="note">本库页面不依赖在线资源：无 CDN、无在线字体、无第三方库，3D 模型是手写的 SVG 投影，公式用浏览器原生 MathML。参考文献外链除外。</div>
+</main>
+
+<footer><div class="wrap">Molecular Symmetry Graph · 持续添加独立专题</div></footer>
+</body>
+</html>

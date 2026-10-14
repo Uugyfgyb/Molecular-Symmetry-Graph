@@ -1,0 +1,14 @@
+{
+  "name": "c2v-phenanthroline-sncl2",
+  "private": true,
+  "type": "module",
+  "description": "Build, verify and browser-QA scripts for the C2v point-group page (phenanthroline and SnCl2).",
+  "scripts": {
+    "build": "node source/build.mjs",
+    "verify": "node source/verify.mjs",
+    "qa": "node source/qa-browser.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.49.1"
+  }
+}

@@ -1,0 +1,1528 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="题 1-22 图解：用可拖动、可执行对称操作的 3D 模型，一步步判定邻二氮菲（1,10-菲咯啉）与 SnCl₂ 的点群——两者都是 C2v。含判定流程、对比画廊、VSEPR 解释、C2v 特征标表与 3N 表示约化。离线单文件。">
+<title>邻二氮菲与 SnCl₂ 的点群｜Molecular Symmetry Graph</title>
+<style>
+:root{
+  --paper:#f6f5f1; --surface:#ffffff; --surface-2:#efede7; --stage:#fbfaf7;
+  --ink:#1c1e22; --ink-soft:#5c6068; --rule:#dbd7cc; --rule-2:#c9c4b6;
+  --c2:#c23b28; --sxz:#2a66ad; --syz:#15836a; --cand:#7a7f88; --cinf:#8a4cbf;
+  --ok:#15836a; --ok-wash:#e2f1eb; --bad:#c23b28; --bad-wash:#f8e4df;
+  --bond-C:#70757e; --bond-N:#3b6fd6; --bond-H:#c3c6cb; --bond-Cl:#4aa95b; --bond-Sn:#7b959a;
+  --lp:#8f63c9; --lplus:#178fa6; --lminus:#dd7f22; --ghost:#3a3e45;
+  --display:"Songti SC","Noto Serif CJK SC","Source Han Serif SC",Georgia,"Times New Roman","STSong","SimSun",serif;
+  --body:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+  --math:"Cambria Math","STIX Two Math","STIX Two Text","Latin Modern Math",Cambria,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --paper:#111316; --surface:#181b20; --surface-2:#1f2329; --stage:#15181c;
+  --ink:#e9e7e2; --ink-soft:#9ca1a9; --rule:#2c3138; --rule-2:#3a4048;
+  --c2:#ff7b62; --sxz:#6ea8ff; --syz:#4fd2a6; --cand:#9aa0a9; --cinf:#c39bff;
+  --ok:#4fd2a6; --ok-wash:#132a23; --bad:#ff7b62; --bad-wash:#2f1a16;
+  --bond-C:#8d939c; --bond-N:#6f9bff; --bond-H:#d6d8dc; --bond-Cl:#62c574; --bond-Sn:#9fb6ba;
+  --lp:#b48cf0; --ghost:#d8dbe0; color-scheme:dark;
+}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.78;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px}
+.read{max-width:780px}
+a{color:var(--sxz);text-underline-offset:3px}
+i{font-family:var(--math);font-style:italic}
+sub,sup{font-family:var(--math);line-height:0}
+.pg{font-family:var(--math);white-space:nowrap}
+.pg i{font-style:italic}
+b,strong{font-weight:650}
+em{font-style:normal;background:linear-gradient(transparent 62%,color-mix(in srgb,var(--c2) 22%,transparent) 62%)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--sxz);outline-offset:2px}
+
+/* ── 页首 ── */
+.hero{border-bottom:1px solid var(--rule);padding-block:52px 34px}
+.brand{font-family:var(--mono);font-size:11.5px;letter-spacing:.15em;color:var(--c2);margin:0 0 26px}
+.brand a{color:inherit;text-decoration:none}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(30px,5.6vw,54px);line-height:1.16;letter-spacing:-.01em;margin:0 0 18px;text-wrap:balance}
+h1 .pg{font-size:1.02em}
+.lede{color:var(--ink-soft);max-width:66ch;font-size:16px;margin:0}
+.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;margin:30px 0 0}
+.ans{display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;align-items:center;background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px 20px 16px 14px}
+.ans-fig .mini{width:100%;height:auto;max-height:130px}
+.ans-q{font-size:13px;color:var(--ink-soft);margin:0}
+.ans-q b{color:var(--ink);font-size:15px}
+.ans-pg{font-family:var(--math);font-size:44px;line-height:1.1;margin:4px 0 2px}
+.ans-pg sub{font-size:.6em}
+.ans-el{font-size:13px;color:var(--ink-soft);margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;list-style:none;padding:0;margin:22px 0 0;font-size:13px;color:var(--ink-soft)}
+.legend li{display:block}
+.legend .sw{vertical-align:-1px;margin-right:8px}
+.sw{display:inline-block;width:24px;height:12px;border-radius:2px;flex:none}
+.sw-c2{height:0;border-top:2.5px solid var(--c2)}
+.sw-sxz{background:color-mix(in srgb,var(--sxz) 22%,transparent);border:1.5px solid var(--sxz)}
+.sw-syz{background:color-mix(in srgb,var(--syz) 22%,transparent);border:1.5px solid var(--syz)}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:26px 0 0;padding:0;list-style:none}
+.toc a{display:inline-block;font-size:12.5px;text-decoration:none;color:var(--ink-soft);border:1px solid var(--rule);border-radius:999px;padding:3px 12px;background:var(--surface)}
+.toc a:hover{color:var(--ink);border-color:var(--rule-2)}
+
+/* ── 节 ── */
+section{padding-block:54px 8px}
+.kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--ink-soft);margin:0 0 6px}
+h2{font-family:var(--display);font-weight:600;font-size:clamp(23px,3.4vw,32px);line-height:1.3;margin:0 0 14px;text-wrap:balance}
+h3{font-size:16px;font-weight:650;margin:26px 0 8px}
+.sec-lede{color:var(--ink-soft);max-width:70ch;margin:0 0 22px}
+.tag-ext{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--lp);border:1px solid currentColor;border-radius:4px;padding:0 7px;margin-left:8px;vertical-align:4px}
+
+/* 01 五种操作 */
+.opcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px}
+.opcard{background:var(--surface);border:1px solid var(--rule);border-radius:9px;padding:14px 16px}
+.opcard .big{font-family:var(--math);font-size:26px;line-height:1.2}
+.opcard .nm{font-size:13px;color:var(--ink-soft);margin:2px 0 6px}
+.opcard p{margin:0;font-size:13.5px}
+.rule-box{margin:16px 0 0;background:var(--surface-2);border-left:3px solid var(--c2);border-radius:0 8px 8px 0;padding:12px 18px;font-size:14.5px}
+.rule-box p{margin:4px 0}
+
+/* 02 实验台 */
+.lab-grid{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,1fr);gap:28px;align-items:start}
+.stage-col{position:sticky;top:12px}
+.stage-box{background:var(--stage);border:1px solid var(--rule);border-radius:12px;overflow:hidden}
+#stage{display:block;width:100%;height:auto;touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+#stage:active{cursor:grabbing}
+.stage-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 10px;border-top:1px solid var(--rule);background:var(--surface)}
+.stage-bar .lbl{font-size:12px;color:var(--ink-soft);margin-right:2px}
+.chip{border:1px solid var(--rule);background:var(--surface);border-radius:999px;padding:2px 11px;font-size:12.5px;cursor:pointer}
+.chip:hover{border-color:var(--rule-2);background:var(--surface-2)}
+.stage-hint{font-size:12px;color:var(--ink-soft);margin:8px 2px 0}
+.keys{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--ink-soft);margin:6px 2px 0;padding:0;list-style:none}
+.keys li{display:flex;align-items:center;gap:6px}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none;border:1px solid rgba(0,0,0,.25)}
+.d-C{background:#4a4f57}.d-N{background:#3466d0}.d-H{background:#eceae6}.d-Sn{background:#6d8b91}.d-Cl{background:#4fb062}
+.ghost-key{width:12px;height:12px;border-radius:50%;border:1.4px dashed var(--ghost);display:inline-block}
+.miss-key{width:12px;height:12px;border-radius:50%;border:2px solid var(--bad);display:inline-block}
+.fix-key{width:12px;height:12px;border-radius:50%;border:2px solid var(--ok);display:inline-block}
+
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);border-radius:9px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;border-radius:7px;padding:7px 8px;cursor:pointer;font-size:14px;color:var(--ink-soft)}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);font-weight:650;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.readout{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 16px;align-items:center;margin:14px 0 4px;padding:10px 14px;border-radius:9px;background:var(--surface-2)}
+.ro-k{grid-column:1/-1;font-size:11.5px;color:var(--ink-soft);letter-spacing:.04em}
+.ro-pg{font-family:var(--math);font-size:38px;line-height:1.15}
+.ro-pg sub{font-size:.6em}
+.ro-el{font-size:13px;color:var(--ink-soft)}
+.angle{margin:12px 0 2px;padding:10px 14px 12px;border:1px dashed var(--rule-2);border-radius:9px}
+.angle-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px}
+#ang-out{font-family:var(--math);font-size:20px}
+#ang{width:100%;accent-color:var(--c2);margin:6px 0 2px}
+.angle-quick{display:flex;flex-wrap:wrap;gap:6px}
+#ang-note{font-size:12.5px;color:var(--ink-soft);margin:8px 0 0}
+.opg-h{font-size:12.5px;color:var(--ink-soft);margin:16px 0 6px}
+.ops{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.op{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:0;border:1px solid var(--rule);border-left-width:4px;background:var(--surface);border-radius:8px;padding:6px 26px 6px 10px;cursor:pointer;min-width:0}
+.op:hover:not(:disabled){background:var(--surface-2)}
+.op:disabled{cursor:progress;opacity:.62}
+.op[hidden]{display:none}
+.op-sym{font-family:var(--math);font-size:18px;line-height:1.3}
+.op-sub{font-size:11.5px;color:var(--ink-soft);line-height:1.4}
+.op-st{position:absolute;right:8px;top:6px;font-weight:700}
+.op-e{border-left-color:var(--ink-soft)}.op-c2{border-left-color:var(--c2)}.op-sxz{border-left-color:var(--sxz)}.op-syz{border-left-color:var(--syz)}
+.op-cand{border-left-style:dashed;border-left-color:var(--cand);background:transparent}
+.op.is-ok .op-st{color:var(--ok)}.op.is-bad .op-st{color:var(--bad)}
+.result{margin:14px 0 0;padding:10px 14px;border-radius:9px;background:var(--surface-2);font-size:13.5px;line-height:1.7;min-height:64px}
+.result.ok{background:var(--ok-wash);box-shadow:inset 3px 0 0 var(--ok)}
+.result.bad{background:var(--bad-wash);box-shadow:inset 3px 0 0 var(--bad)}
+.result .soon{display:inline-block;margin-left:6px;font-size:12px;color:var(--ink-soft)}
+.net-row{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;margin:10px 0 0}
+#net{font-size:13px;min-height:1.5em}
+.net-k{font-size:11px;letter-spacing:.06em;color:var(--ink-soft);border:1px solid var(--rule);border-radius:4px;padding:0 5px;margin-right:4px}
+.net-eq{font-weight:650}
+.net-why{display:block;font-size:12px;color:var(--ink-soft)}
+#reset{flex:none}
+.toggles{display:flex;flex-wrap:wrap;gap:4px 16px;margin:12px 0 0;padding-top:10px;border-top:1px solid var(--rule);font-size:13px}
+.toggles label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.toggles input{accent-color:var(--sxz)}
+
+/* 流程 */
+.flow-h{margin:30px 0 4px}
+.flow{list-style:none;margin:12px 0 0;padding:0;position:relative}
+.flow::before{content:"";position:absolute;left:15px;top:10px;bottom:30px;width:2px;background:var(--c2);opacity:.55}
+.fs{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;padding-bottom:16px}
+.fs-n{width:32px;height:32px;border-radius:50%;background:var(--surface);border:2px solid var(--c2);display:grid;place-items:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--c2);position:relative;z-index:1}
+.fs-body{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px 14px}
+.fs-q{font-weight:650;margin:0}
+.fs-a{margin:4px 0 0;font-size:14px}
+.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:0 9px;margin-right:6px;vertical-align:1px}
+.pill.no{background:var(--surface-2);color:var(--ink-soft);border:1px solid var(--rule-2)}
+.pill.yes{background:var(--ok-wash);color:var(--ok);border:1px solid var(--ok)}
+.fs-alt{margin:6px 0 0;font-size:12.5px;color:var(--ink-soft)}
+.fs-alt::before{content:"另一支 ";font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;border:1px dashed var(--rule-2);border-radius:3px;padding:0 4px;margin-right:4px}
+.fs-demo{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
+.demo{border:1px solid var(--rule-2);background:var(--surface-2);border-radius:6px;padding:2px 10px;font-size:12.5px;cursor:pointer}
+.demo:hover:not(:disabled){border-color:var(--c2)}
+.demo:disabled{opacity:.55;cursor:progress}
+.fs-end .fs-n{background:var(--c2);color:#fff}
+.fs-end .fs-body{border-color:var(--c2);box-shadow:inset 3px 0 0 var(--c2)}
+.fs-end .big{font-family:var(--math);font-size:30px;line-height:1.2}
+body[data-mol="phen"] .m-sncl2, body[data-mol="sncl2"] .m-phen{display:none}
+body:not(.js) .m-sncl2{display:none}
+
+/* 03 画廊 */
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:14px}
+.g-card{margin:0;background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px}
+.g-card.is-q{border-color:var(--c2);box-shadow:inset 0 3px 0 var(--c2)}
+.g-card .mini{width:100%;height:150px}
+.g-card figcaption{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:baseline}
+.g-name{font-weight:650;font-size:14px}
+.g-pg{font-family:var(--math);font-size:24px;grid-row:span 2}
+.g-pg sub{font-size:.62em}
+.g-el{font-size:12px;color:var(--ink-soft)}
+.g-note{grid-column:1/-1;font-size:13px;margin-top:4px}
+.mini .m-bond{stroke:var(--ink);stroke-width:1.7;stroke-linecap:round}
+.mini .m-arom{fill:none;stroke:var(--ink-soft);stroke-width:1.1}
+.mini .m-knock{fill:var(--surface)}
+.mini .m-at{font:600 13px var(--body);text-anchor:middle;fill:var(--ink)}
+.mini .m-N{fill:var(--bond-N)}.mini .m-Cl{fill:var(--bond-Cl)}.mini .m-Sn,.mini .m-Hg{fill:var(--ink)}
+.mini .m-lpd{fill:var(--lp)}
+.mini .m-c2{stroke:var(--c2);stroke-width:1.4;stroke-dasharray:9 3 2 3}
+.mini .m-cinf{stroke:var(--cinf);stroke-width:1.6;stroke-dasharray:9 3 2 3}
+.mini .m-band{stroke:var(--sxz);stroke-width:7;opacity:.2}
+.mini .m-lens{fill:var(--c2)}
+.mini .m-inv{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+.g-legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:var(--ink-soft);margin:12px 0 0;padding:0;list-style:none}
+.g-legend li{display:block}
+.g-legend svg{vertical-align:middle;margin-right:7px}
+
+/* 04 VSEPR */
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:22px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 18px}
+.card h3{margin-top:4px}
+.lewis{width:100%;max-width:340px;height:auto;display:block;margin:4px auto 0}
+.lewis text{font:600 17px var(--body);fill:var(--ink);text-anchor:middle}
+.lewis .e{fill:var(--ink)}
+.lewis .e-lp{fill:var(--lp)}
+.lewis line{stroke:var(--ink);stroke-width:2}
+.steps{margin:8px 0 0;padding-left:1.3em;font-size:14.5px}
+.steps li{margin:3px 0}
+#protractor{width:100%;max-width:440px;height:auto;display:block;margin:6px auto 0;overflow:visible}
+#protractor .pr-arc{fill:none;stroke:var(--rule-2);stroke-dasharray:3 4}
+#protractor polyline{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#protractor text{font:12.5px var(--body);fill:var(--ink-soft)}
+#protractor .pr-180 polyline{stroke:var(--cand);stroke-dasharray:6 4}
+#protractor .pr-120 polyline{stroke:var(--sxz);stroke-dasharray:3 3}
+#protractor .pr-sn polyline{stroke:var(--bond-Cl);stroke-width:3}
+#protractor .pr-sn text{fill:var(--ink);font-weight:650}
+#protractor .pr-c{fill:#6d8b91}
+#protractor .pr-sn-t{fill:#fff;font:700 8px var(--body);text-anchor:middle}
+#protractor .pr-lp ellipse{fill:color-mix(in srgb,var(--lp) 28%,transparent);stroke:var(--lp)}
+#protractor .pr-lp circle{fill:var(--lp)}
+.aside{font-size:13px;color:var(--ink-soft);margin:10px 0 0}
+
+/* 05 特征标表 */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 12px;text-align:center;border-bottom:1px solid var(--rule);white-space:nowrap}
+thead th{font-weight:600;background:var(--surface-2);font-family:var(--math);font-size:15px}
+tbody th{font-family:var(--math);font-weight:400;text-align:left;font-size:15px}
+td.l{text-align:left;font-family:var(--math);color:var(--ink-soft)}
+tr.calc th{font-family:var(--body);font-size:13px;font-weight:600}
+tr.calc td{font-family:var(--math);font-weight:650;font-size:15px}
+tr.calc.g td{color:var(--c2)}
+tr.sep td,tr.sep th{border-top:2px solid var(--rule-2)}
+.col-c2{color:var(--c2)}.col-sxz{color:var(--sxz)}.col-syz{color:var(--syz)}
+.formula{margin:18px 0 6px;font-size:17px}
+math{font-family:var(--math)}
+.red{display:grid;grid-template-columns:42px minmax(0,1fr);gap:8px;font-family:var(--math);font-size:15px;padding:3px 0;border-bottom:1px dotted var(--rule)}
+.red-k{font-size:16px}
+.red-f{overflow-wrap:anywhere}
+#t-sum{margin:12px 0 0;font-family:var(--math);font-size:16px}
+#t-sum p{margin:4px 0}
+#t-sum .lhs{display:inline-block;min-width:4.6em}
+#t-sum .cnt{font-family:var(--body);font-size:12.5px;color:var(--ink-soft)}
+#t-sum .vib{font-weight:650;color:var(--c2)}
+#t-sum .act{font-family:var(--body);font-size:14px;margin-top:10px}
+.mol-switch{display:inline-flex;gap:4px;margin:0 0 12px;background:var(--surface-2);border-radius:8px;padding:3px}
+.mol-switch button{border:0;background:transparent;border-radius:6px;padding:3px 12px;font-size:13px;cursor:pointer;color:var(--ink-soft)}
+.mol-switch button[aria-selected="true"]{background:var(--surface);color:var(--ink);font-weight:650}
+
+/* 06 误区、07 术语、08 来源 */
+.pits{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.pits li{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:12px 16px 12px 46px;position:relative}
+.pits li::before{content:"✗";position:absolute;left:16px;top:11px;color:var(--bad);font-weight:700}
+.pits b{display:block}
+.gloss td,.gloss th{white-space:normal;text-align:left;vertical-align:top}
+.gloss td:first-child{white-space:nowrap;font-weight:600}
+.gloss td:nth-child(2){font-family:var(--math);font-style:italic;white-space:nowrap}
+.gloss thead th{font-family:var(--body);font-size:13px}
+.layers{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.layers li{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:12px 16px;font-size:14px}
+.layers .lk{font-weight:650}
+.lk-exact{color:var(--ok)}.lk-approx{color:var(--sxz)}.lk-schem{color:var(--lp)}.lk-orig{color:var(--ink-soft)}
+.refs{font-size:13.5px;padding-left:1.4em}
+.refs li{margin:4px 0}
+footer{border-top:1px solid var(--rule);margin-top:56px;padding-block:22px 48px;font-size:12.5px;color:var(--ink-soft)}
+
+/* 3D 舞台内的图元 */
+#stage .pl{stroke-width:.6;stroke-opacity:.25}
+#stage .pe{stroke-width:1.5;stroke-opacity:.8}
+#stage .pl.syz{fill:var(--syz);fill-opacity:.10;stroke:var(--syz)}
+#stage .pl.sxz{fill:var(--sxz);fill-opacity:.10;stroke:var(--sxz)}
+#stage .pl.cand{fill:var(--cand);fill-opacity:.12;stroke:var(--cand)}
+#stage .pe.syz{stroke:var(--syz)}#stage .pe.sxz{stroke:var(--sxz)}#stage .pe.cand{stroke:var(--cand);stroke-dasharray:5 4}
+#stage .ax{stroke-width:2.6;stroke-linecap:round}
+#stage .ax.c2{stroke:var(--c2)}
+#stage .ax.cinf{stroke:var(--cinf);stroke-width:3}
+#stage .ax.cand{stroke:var(--cand);stroke-dasharray:5 4;stroke-linecap:butt}
+#stage .axm.c2{fill:var(--c2)}#stage .axm.cand{fill:var(--cand)}#stage .axm.cinf{fill:var(--cinf)}
+#stage .bd{stroke-linecap:round}
+#stage .b-C{stroke:var(--bond-C)}#stage .b-N{stroke:var(--bond-N)}#stage .b-H{stroke:var(--bond-H)}#stage .b-Cl{stroke:var(--bond-Cl)}#stage .b-Sn{stroke:var(--bond-Sn)}#stage .b-Hg{stroke:var(--bond-Sn)}
+#stage .at{stroke:rgba(0,0,0,.38);stroke-width:.9}
+#stage .al{font-family:var(--body);font-weight:700;text-anchor:middle;pointer-events:none}
+#stage .lobe{stroke-width:1;fill-opacity:.82}
+#stage .lplus{fill:var(--lplus);stroke:var(--lplus)}
+#stage .lminus{fill:var(--lminus);stroke:var(--lminus)}
+#stage .lobe-t{fill:#fff;font:700 10px var(--body);text-anchor:middle}
+#stage .lp ellipse{fill:var(--lp);fill-opacity:.24;stroke:var(--lp);stroke-width:1.2}
+#stage .lp circle{fill:var(--lp)}
+#stage .ghost{fill:none;stroke:var(--ghost);stroke-width:1.2;stroke-dasharray:3 3;opacity:.7}
+#stage .missring{fill:none;stroke:var(--bad);stroke-width:2.6}
+#stage .fixedring{fill:none;stroke:var(--ok);stroke-width:2.2}
+#stage .el-lab{font-family:var(--math);font-weight:600;paint-order:stroke;stroke:var(--stage);stroke-width:4px;stroke-linejoin:round}
+#stage .el-lab.c2{fill:var(--c2)}#stage .el-lab.sxz{fill:var(--sxz)}#stage .el-lab.syz{fill:var(--syz)}#stage .el-lab.cand{fill:var(--cand)}#stage .el-lab.cinf{fill:var(--cinf)}
+#stage .invc circle{fill:var(--stage);stroke:var(--ink);stroke-width:1.6}
+#stage .invc circle+circle{fill:var(--ink);stroke:none}
+
+@media (max-width:960px){
+  .lab-grid{grid-template-columns:minmax(0,1fr)}
+  .stage-col{position:static}
+}
+@media (max-width:560px){
+  .wrap{padding-inline:16px}
+  .hero{padding-block:36px 26px}
+  .ans{grid-template-columns:104px minmax(0,1fr);gap:12px;padding:12px 14px 12px 10px}
+  .ans-pg{font-size:36px}
+  .ops{grid-template-columns:1fr 1fr}
+  .layers li{grid-template-columns:minmax(0,1fr);gap:2px}
+  .panel{padding:12px}
+}
+</style>
+</head>
+<body data-mol="phen">
+
+<header class="hero"><div class="wrap">
+  <p class="brand"><a href="../../index.html">MOLECULAR SYMMETRY GRAPH</a> · 分子对称性图解 · 题 1-22</p>
+  <h1>邻二氮菲和 SnCl₂ 长得毫不相干，<br>却是同一个点群 <span class="pg"><i>C</i><sub>2v</sub></span>。</h1>
+  <p class="lede">题目：Assign each molecule below to the proper point group——a. <i>o</i>-phenanthroline（邻二氮菲，即 1,10-菲咯啉 1,10-phenanthroline），b. stannous chloride（氯化亚锡 SnCl₂）。下面用一个可以拖动、可以真的“执行”对称操作的 3D 模型，把 Schoenflies 判定流程一步一步走完；每一步都能点按钮看分子是否和自己重合。</p>
+  <div class="answers">
+    <article class="ans">
+      <div class="ans-fig" id="fig-a"></div>
+      <div>
+        <p class="ans-q">a. <b>邻二氮菲</b> C₁₂H₈N₂（平面，三环角形稠合）</p>
+        <p class="ans-pg"><i>C</i><sub>2v</sub></p>
+        <p class="ans-el"><i>E</i> · <i>C</i><sub>2</sub> · <i>σ</i><sub>v</sub>(<i>xz</i>) · <i>σ</i><sub>v</sub>′(<i>yz</i>)　阶 <i>h</i> = 4</p>
+      </div>
+    </article>
+    <article class="ans">
+      <div class="ans-fig" id="fig-b"></div>
+      <div>
+        <p class="ans-q">b. <b>氯化亚锡 SnCl₂</b>（气相单分子，弯曲形）</p>
+        <p class="ans-pg"><i>C</i><sub>2v</sub></p>
+        <p class="ans-el"><i>E</i> · <i>C</i><sub>2</sub> · <i>σ</i><sub>v</sub>(<i>xz</i>) · <i>σ</i><sub>v</sub>′(<i>yz</i>)　阶 <i>h</i> = 4</p>
+      </div>
+    </article>
+  </div>
+  <ul class="legend" aria-label="颜色约定">
+    <li><span class="sw sw-c2"></span><i>C</i><sub>2</sub> 主轴（<i>z</i>）</li>
+    <li><span class="sw sw-sxz"></span><i>σ</i><sub>v</sub>(<i>xz</i>)：垂直于分子平面的镜面</li>
+    <li><span class="sw sw-syz"></span><i>σ</i><sub>v</sub>′(<i>yz</i>)：分子平面本身</li>
+  </ul>
+  <nav aria-label="本页目录"><ul class="toc">
+    <li><a href="#ops">01 五种对称操作</a></li>
+    <li><a href="#lab">02 3D 实验台 + 判定流程</a></li>
+    <li><a href="#compare">03 换个 N 的位置</a></li>
+    <li><a href="#vsepr">04 SnCl₂ 为什么是弯的</a></li>
+    <li><a href="#table">05 延伸：特征标表</a></li>
+    <li><a href="#pitfalls">06 常见错误</a></li>
+    <li><a href="#glossary">07 术语表</a></li>
+    <li><a href="#sources">08 来源与核验</a></li>
+  </ul></nav>
+</div></header>
+
+<main>
+<section id="ops"><div class="wrap">
+  <p class="kicker">01 / 先认清五种对称操作</p>
+  <h2>判定点群，只是在数分子有哪些“做完看不出来”的动作</h2>
+  <p class="sec-lede">对称元素 symmetry element 是几何对象（轴、平面、点）；对称操作 symmetry operation 是绕着它做的动作。点群 point group 就是一个分子全部对称操作的集合。</p>
+  <div class="opcards">
+    <div class="opcard"><div class="big"><i>E</i></div><p class="nm">恒等 identity</p><p>什么都不做。每个分子都有，没有它就构不成“群”。</p></div>
+    <div class="opcard"><div class="big"><i>C</i><sub>n</sub></div><p class="nm">真转动 proper rotation</p><p>绕轴转 360°/<i>n</i>。阶最高的那条轴叫主轴 principal axis，定为 <i>z</i>。本题两个分子都只有 <i>C</i><sub>2</sub>。</p></div>
+    <div class="opcard"><div class="big"><i>σ</i></div><p class="nm">反映 reflection</p><p>对一个平面照镜子。含主轴的叫 <i>σ</i><sub>v</sub>（vertical），垂直于主轴的叫 <i>σ</i><sub>h</sub>（horizontal）。</p></div>
+    <div class="opcard"><div class="big"><i>i</i></div><p class="nm">反演 inversion</p><p>每个点穿过中心，到对面等距处：(<i>x</i>, <i>y</i>, <i>z</i>) → (−<i>x</i>, −<i>y</i>, −<i>z</i>)。</p></div>
+    <div class="opcard"><div class="big"><i>S</i><sub>n</sub></div><p class="nm">旋转反映 improper rotation</p><p>先转 360°/<i>n</i>，再对垂直于该轴的平面反映。<i>S</i><sub>1</sub> = <i>σ</i>，<i>S</i><sub>2</sub> = <i>i</i>。</p></div>
+  </div>
+  <div class="rule-box">
+    <p><b>唯一的判据：</b>做完这个动作以后，每个原子都落在<b>同种原子原来的位置</b>上——分子和原来不可区分。哪怕只有一个原子落空，就不是对称操作。</p>
+    <p><b>位置约束：</b>所有对称元素都必须穿过分子的质心 center of mass，因为任何对称操作都不能挪动质心。下面的 3D 模型都已把质心放在原点。</p>
+  </div>
+</div></section>
+
+<section id="lab"><div class="wrap">
+  <p class="kicker">02 / 3D 实验台</p>
+  <h2>亲手执行对称操作：能重合的才算数</h2>
+  <p class="sec-lede">拖动模型旋转视角。点右侧按钮，分子会真的转过去，或匀速“穿过”镜面到另一侧。执行后虚线圈标出原来的位置：同种原子全部落进虚线圈 → 是对称操作；出现红圈 → 不是，2 秒后自动还原。右侧下方的判定流程每一步都有“演示”按钮。</p>
+  <div class="lab-grid">
+    <div class="stage-col">
+      <div class="stage-box">
+        <svg id="stage" viewBox="-300 -265 600 530" tabindex="0" role="img" aria-label="可拖动的 3D 分子模型，显示 C2 轴和两个镜面">
+          <defs>
+            <radialGradient id="g-C" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#9aa0a8"/><stop offset=".55" stop-color="#4a4f57"/><stop offset="1" stop-color="#26292e"/></radialGradient>
+            <radialGradient id="g-N" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#a9c2ff"/><stop offset=".55" stop-color="#3466d0"/><stop offset="1" stop-color="#1d3b80"/></radialGradient>
+            <radialGradient id="g-H" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#e3e1dc"/><stop offset="1" stop-color="#a9a7a2"/></radialGradient>
+            <radialGradient id="g-Cl" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#c6efcc"/><stop offset=".55" stop-color="#4fb062"/><stop offset="1" stop-color="#26632f"/></radialGradient>
+            <radialGradient id="g-Sn" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#cbdadd"/><stop offset=".55" stop-color="#6d8b91"/><stop offset="1" stop-color="#3a4e52"/></radialGradient>
+            <radialGradient id="g-Hg" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#e3e3ef"/><stop offset=".55" stop-color="#8d8da6"/><stop offset="1" stop-color="#4c4c60"/></radialGradient>
+          </defs>
+          <g id="L-items"></g>
+          <g id="L-over"></g>
+        </svg>
+        <div class="stage-bar">
+          <span class="lbl">视角</span>
+          <button type="button" class="chip" data-view="oblique">斜视</button>
+          <button type="button" class="chip" data-view="face">正对分子平面</button>
+          <button type="button" class="chip" data-view="top">沿 <i>C</i><sub>2</sub> 俯视</button>
+          <button type="button" class="chip" data-view="side">侧视（平面成一条线）</button>
+        </div>
+      </div>
+      <ul class="keys">
+        <li><span class="dot d-C"></span>C</li><li><span class="dot d-N"></span>N</li><li><span class="dot d-H"></span>H</li>
+        <li class="m-sncl2"><span class="dot d-Sn"></span>Sn</li><li class="m-sncl2"><span class="dot d-Cl"></span>Cl</li>
+        <li><span class="ghost-key"></span>原来的位置</li><li><span class="fix-key"></span>原地不动</li><li><span class="miss-key"></span>落空</li>
+      </ul>
+      <p class="stage-hint"><span class="m-phen">原子上的数字是 1,10-菲咯啉的环编号；紫色气球是 N 的 sp² 孤对电子（它们一起指向“湾区”，所以邻二氮菲能双齿螯合金属）。</span><span class="m-sncl2">紫色气球是 Sn 上的 5s 孤对电子。</span>鼠标拖动旋转；触屏左右滑动旋转；舞台获得焦点时可用方向键。</p>
+      <noscript><p class="stage-hint">需要启用 JavaScript 才能显示 3D 模型；下面的文字讲解不依赖脚本。</p></noscript>
+    </div>
+
+    <div class="right-col">
+      <div class="panel">
+        <div class="seg" role="tablist" aria-label="选择分子">
+          <button type="button" role="tab" data-mol-tab="phen" aria-selected="true">a. 邻二氮菲</button>
+          <button type="button" role="tab" data-mol-tab="sncl2" aria-selected="false">b. SnCl₂</button>
+        </div>
+        <div class="readout" aria-live="polite">
+          <div class="ro-k">由当前坐标实时计算出的点群</div>
+          <div class="ro-pg" id="ro-pg"><span class="pg"><i>C</i><sub>2v</sub></span></div>
+          <div class="ro-el" id="ro-el"></div>
+        </div>
+        <div class="angle m-sncl2">
+          <div class="angle-top"><label for="ang">Cl–Sn–Cl 键角</label><output id="ang-out" for="ang">98.1°</output></div>
+          <input type="range" id="ang" min="60" max="180" step="0.1" value="98.1">
+          <div class="angle-quick">
+            <button type="button" class="chip" data-ang="98.1">98.1° 实测</button>
+            <button type="button" class="chip" data-ang="120">120°</button>
+            <button type="button" class="chip" data-ang="179.9">179.9°</button>
+            <button type="button" class="chip" data-ang="180">180° 线形</button>
+          </div>
+          <p id="ang-note"></p>
+        </div>
+        <p class="opg-h">本群的 4 个操作（<i>C</i><sub>2v</sub>）</p>
+        <div class="ops" id="ops-true"></div>
+        <p class="opg-h" id="ops-cand-h">试一试：这些<b>不</b>在本群里</p>
+        <div class="ops" id="ops-cand"></div>
+        <div class="result" id="result" aria-live="polite">点一个操作按钮。</div>
+        <div class="net-row"><div id="net" aria-live="polite"></div><button type="button" class="chip" id="reset">复位</button></div>
+        <div class="toggles">
+          <label><input type="checkbox" data-show="el" checked>对称元素</label>
+          <label><input type="checkbox" data-show="lab" checked>原子编号</label>
+          <label><input type="checkbox" data-show="lp" checked>孤对电子</label>
+          <label><input type="checkbox" data-show="p">p 轨道（⊥ 平面，带相位）</label>
+        </div>
+      </div>
+
+      <h3 class="flow-h">Schoenflies 判定流程：<span class="m-phen">邻二氮菲</span><span class="m-sncl2">SnCl₂</span> 走过的路</h3>
+      <p class="sec-lede" style="margin:0">切换上面的分子，看两条路径——它们一模一样。</p>
+      <ol class="flow">
+        <li class="fs"><div class="fs-n">1</div><div class="fs-body">
+          <p class="fs-q">是线性分子吗？</p>
+          <p class="fs-a"><span class="pill no">否</span><span class="m-phen">三个六元环稠合成一个平面，原子并不排在一条直线上。</span><span class="m-sncl2">Sn 上有一对孤对电子（AX₂E），分子是弯的；气相实测键角 98.1°。</span></p>
+          <p class="fs-alt">若“是”：有 <i>i</i> → <span class="pg"><i>D</i><sub>∞h</sub></span>，无 <i>i</i> → <span class="pg"><i>C</i><sub>∞v</sub></span></p>
+          <div class="fs-demo"><button type="button" class="demo m-sncl2" data-demo="angle180">▶ 把键角拉到 180° 看点群怎么变</button><button type="button" class="demo m-phen" data-demo="view:side">▶ 侧视：平面，但不是一条线</button></div>
+        </div></li>
+        <li class="fs"><div class="fs-n">2</div><div class="fs-body">
+          <p class="fs-q">有两条以上 <i>n</i> ≥ 3 的高阶轴吗？</p>
+          <p class="fs-a"><span class="pill no">否</span><span class="m-phen">中环看起来像正六边形，但整个分子没有 <i>C</i><sub>3</sub> 或 <i>C</i><sub>6</sub>；两个外环和两个 N 都只在一侧。</span><span class="m-sncl2">三原子的弯曲分子最多只有一条 <i>C</i><sub>2</sub>。</span></p>
+          <p class="fs-alt">若“是”→ 立方家族：<span class="pg"><i>T</i><sub>d</sub></span>、<span class="pg"><i>O</i><sub>h</sub></span>、<span class="pg"><i>I</i><sub>h</sub></span> 等（四面体、八面体、二十面体）</p>
+        </div></li>
+        <li class="fs"><div class="fs-n">3</div><div class="fs-body">
+          <p class="fs-q">有转动轴 <i>C</i><sub>n</sub> 吗？最高阶 <i>n</i> 是多少？</p>
+          <p class="fs-a"><span class="pill yes">有，<i>n</i> = 2</span><span class="m-phen"><i>C</i><sub>2</sub> 在分子平面内，竖直穿过 C5–C6 键中点和 C10a–C10b 键中点——它<b>不穿过任何原子</b>。这就是主轴 <i>z</i>。</span><span class="m-sncl2"><i>C</i><sub>2</sub> 穿过 Sn，平分 Cl–Sn–Cl 角。这就是主轴 <i>z</i>。</span></p>
+          <p class="fs-alt">若一条转轴都没有 → <span class="pg"><i>C</i><sub>s</sub></span>（有 <i>σ</i>）、<span class="pg"><i>C</i><sub>i</sub></span>（有 <i>i</i>）或 <span class="pg"><i>C</i><sub>1</sub></span></p>
+          <div class="fs-demo"><button type="button" class="demo" data-demo="C2z">▶ 演示 <i>C</i><sub>2</sub></button></div>
+        </div></li>
+        <li class="fs"><div class="fs-n">4</div><div class="fs-body">
+          <p class="fs-q">有 <i>n</i> 条（这里是 2 条）垂直于主轴的 <i>C</i><sub>2</sub> 吗？</p>
+          <p class="fs-a"><span class="pill no">否</span><span class="m-phen">候选只有两条：垂直于分子平面的 <i>C</i><sub>2</sub>(<i>x</i>)，和平面内水平的 <i>C</i><sub>2</sub>(<i>y</i>)。两者都把底部“湾区”的两个 N 转到顶部，而顶部是 C5、C6——落空。</span><span class="m-sncl2">候选 <i>C</i><sub>2</sub>(<i>x</i>)、<i>C</i><sub>2</sub>(<i>y</i>) 都会把向下张开的两个 Cl 转到 Sn 上方——那里只有孤对电子，没有原子。</span></p>
+          <p class="fs-alt">若“是”→ D 家族：再看 <i>σ</i><sub>h</sub>（<span class="pg"><i>D</i><sub>nh</sub></span>）、<i>n</i> 个 <i>σ</i><sub>d</sub>（<span class="pg"><i>D</i><sub>nd</sub></span>）或都没有（<span class="pg"><i>D</i><sub>n</sub></span>）</p>
+          <div class="fs-demo"><button type="button" class="demo" data-demo="C2x,C2y">▶ 演示两条候选（都会失败）</button></div>
+        </div></li>
+        <li class="fs"><div class="fs-n">5</div><div class="fs-body">
+          <p class="fs-q">有垂直于主轴的镜面 <i>σ</i><sub>h</sub> 吗？</p>
+          <p class="fs-a"><span class="pill no">否</span><span class="m-phen">唯一的候选是过质心、垂直于 <i>z</i> 的 <i>xy</i> 平面。它把下方的 N 映到上方——落空。</span><span class="m-sncl2">唯一的候选 <i>xy</i> 平面把两个 Cl 从 Sn 下方映到上方——落空。</span></p>
+          <p class="fs-alt">若“是”→ <span class="pg"><i>C</i><sub>nh</sub></span></p>
+          <div class="fs-demo"><button type="button" class="demo" data-demo="sxy">▶ 演示 <i>σ</i>(<i>xy</i>)（会失败）</button></div>
+        </div></li>
+        <li class="fs"><div class="fs-n">6</div><div class="fs-body">
+          <p class="fs-q">有 <i>n</i> 个（这里是 2 个）包含主轴的镜面 <i>σ</i><sub>v</sub> 吗？</p>
+          <p class="fs-a"><span class="pill yes">有 2 个</span><span class="m-phen">一个是分子平面本身 <i>σ</i><sub>v</sub>′(<i>yz</i>)；另一个与它垂直、也含 <i>C</i><sub>2</sub>，把左半个分子映成右半个——<i>σ</i><sub>v</sub>(<i>xz</i>)。</span><span class="m-sncl2">分子平面 <i>σ</i><sub>v</sub>′(<i>yz</i>)（含 Sn 和两个 Cl）；以及垂直于它、只穿过 Sn 的 <i>σ</i><sub>v</sub>(<i>xz</i>)，交换两个 Cl。</span></p>
+          <p class="fs-alt">若“否”→ 再查 <i>S</i><sub>2n</sub>：有 → <span class="pg"><i>S</i><sub>2n</sub></span>，无 → <span class="pg"><i>C</i><sub>n</sub></span></p>
+          <div class="fs-demo"><button type="button" class="demo" data-demo="sxz,syz">▶ 演示两个 <i>σ</i><sub>v</sub></button></div>
+        </div></li>
+        <li class="fs fs-end"><div class="fs-n">✓</div><div class="fs-body">
+          <p class="big"><span class="pg"><i>C</i><sub>2v</sub></span></p>
+          <p class="fs-a" style="margin:0">群元素 {<i>E</i>, <i>C</i><sub>2</sub>, <i>σ</i><sub>v</sub>(<i>xz</i>), <i>σ</i><sub>v</sub>′(<i>yz</i>)}，阶 <i>h</i> = 4。两个分子走的是同一条路径：点群只记录“有哪些对称元素”，与分子大小、原子种类、键角多少都无关。</p>
+          <div class="fs-demo"><button type="button" class="demo" data-demo="C2z,sxz">▶ 先 <i>C</i><sub>2</sub> 再 <i>σ</i><sub>v</sub>(<i>xz</i>)：等于哪一个？</button></div>
+        </div></li>
+      </ol>
+    </div>
+  </div>
+</div></section>
+
+<section id="compare"><div class="wrap">
+  <p class="kicker">03 / 对比画廊</p>
+  <h2>换一个 N 的位置，点群就变了</h2>
+  <p class="sec-lede">下面每张小图的对称元素都不是手画的：程序先从坐标里穷举出全部对称元素，再按同一套流程判定点群，最后把找到的元素画上去。</p>
+  <div class="gallery" id="gallery"></div>
+  <ul class="g-legend">
+    <li><svg width="30" height="10" aria-hidden="true"><line x1="0" y1="5" x2="30" y2="5" stroke="var(--c2)" stroke-width="1.4" stroke-dasharray="9 3 2 3"/></svg>在纸面内的 <i>C</i><sub>2</sub></li>
+    <li><svg width="18" height="12" aria-hidden="true"><path d="M1,6Q9,-3 17,6Q9,15 1,6Z" fill="var(--c2)"/></svg>垂直于纸面的 <i>C</i><sub>2</sub></li>
+    <li><svg width="30" height="10" aria-hidden="true"><line x1="0" y1="5" x2="30" y2="5" stroke="var(--sxz)" stroke-width="7" opacity=".2"/></svg>垂直于纸面的镜面（侧看成一条带）</li>
+    <li><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4.2" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/></svg>反演中心 <i>i</i></li>
+    <li>分子平面本身也是镜面（纸面，未画出）</li>
+  </ul>
+</div></section>
+
+<section id="vsepr"><div class="wrap">
+  <p class="kicker">04 / 几何决定点群</p>
+  <h2>SnCl₂ 为什么是弯的</h2>
+  <p class="sec-lede">点群只看几何。SnCl₂ 的整道题其实取决于一个化学判断：分子是直的还是弯的。画成直线就会得到 <span class="pg"><i>D</i><sub>∞h</sub></span>——这是这道题最常见的错误答案。</p>
+  <div class="two">
+    <div class="card">
+      <h3>价层电子对互斥理论 VSEPR</h3>
+      <svg class="lewis" viewBox="0 0 340 170" role="img" aria-label="SnCl2 的路易斯结构：Sn 上一对孤对电子，两个 Cl 各三对孤对电子">
+        <text x="170" y="74">Sn</text>
+        <circle class="e-lp" cx="163" cy="40" r="3.2"/><circle class="e-lp" cx="177" cy="40" r="3.2"/>
+        <line x1="153" y1="80" x2="92" y2="122"/><line x1="187" y1="80" x2="248" y2="122"/>
+        <text x="78" y="140">Cl</text><text x="262" y="140">Cl</text>
+        <circle class="e" cx="56" cy="129" r="2.4"/><circle class="e" cx="56" cy="141" r="2.4"/>
+        <circle class="e" cx="72" cy="158" r="2.4"/><circle class="e" cx="84" cy="158" r="2.4"/>
+        <circle class="e" cx="96" cy="140" r="2.4"/><circle class="e" cx="100" cy="150" r="2.4"/>
+        <circle class="e" cx="284" cy="129" r="2.4"/><circle class="e" cx="284" cy="141" r="2.4"/>
+        <circle class="e" cx="256" cy="158" r="2.4"/><circle class="e" cx="268" cy="158" r="2.4"/>
+        <circle class="e" cx="244" cy="140" r="2.4"/><circle class="e" cx="240" cy="150" r="2.4"/>
+      </svg>
+      <ol class="steps">
+        <li>Sn 是第 14 族，价层 4 个电子（5s²5p²）。Sn(II) 用其中 2 个与两个 Cl 成键。</li>
+        <li>剩下 2 个电子成为一对孤对电子 lone pair。</li>
+        <li>电子域 = 2 个成键 + 1 个孤对 = 3 → 电子对排成平面三角形；只看原子就是<b>弯曲形</b>（AX₂E）。</li>
+        <li>孤对电子比成键电子对更占地方，把两个 Cl 往下压：键角小于理想的 120°。</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>同一把量角器上的三个角</h3>
+      <svg id="protractor" viewBox="0 -10 440 190" role="img" aria-label="键角对比：180 度线形，120 度理想，98.1 度 SnCl2 实测"></svg>
+      <p class="aside">实测角 98.1° 比 120° 小得多。常见的解释是：重的主族元素的 5s 孤对电子 s 成分高，成键主要靠近乎纯的 p 轨道，所以键角向 90° 靠拢（惰性电子对效应 inert-pair effect）。这个解释影响的只是角度大小；只要不是 180°，点群就都是 <span class="pg"><i>C</i><sub>2v</sub></span>——在 02 节的滑块上可以验证。</p>
+      <p class="aside"><b>注意物态：</b>固体 SnCl₂ 中 Sn 通过氯桥彼此相连形成链状结构，不是孤立的 SnCl₂ 分子。题目问的是孤立分子，也就是气相单体。</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="table"><div class="wrap">
+  <p class="kicker">05 / 延伸：点群能拿来做什么<span class="tag-ext">题目未要求</span></p>
+  <h2><span class="pg"><i>C</i><sub>2v</sub></span> 特征标表，以及两个分子各有几种振动</h2>
+  <p class="sec-lede">知道点群以后，最直接的用途是数振动模式。方法：数每个操作下“原地不动的原子”，乘以每个不动原子贡献的特征标，得到 3<i>N</i> 维笛卡尔位移表示 Γ<sub>3N</sub>，再用约化公式拆成不可约表示。不动原子数正是 02 节里绿圈的个数。</p>
+  <div class="mol-switch" role="tablist" aria-label="选择分子">
+    <button type="button" role="tab" data-mol-tab="phen" aria-selected="true">邻二氮菲</button>
+    <button type="button" role="tab" data-mol-tab="sncl2" aria-selected="false">SnCl₂</button>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th><i>C</i><sub>2v</sub></th><th><i>E</i></th><th class="col-c2"><i>C</i><sub>2</sub></th><th class="col-sxz"><i>σ</i><sub>v</sub>(<i>xz</i>)</th><th class="col-syz"><i>σ</i><sub>v</sub>′(<i>yz</i>)</th><th>线性 / 转动</th><th>二次项</th></tr></thead>
+      <tbody>
+        <tr><th><i>A</i><sub>1</sub></th><td>1</td><td>1</td><td>1</td><td>1</td><td class="l">z</td><td class="l">x², y², z²</td></tr>
+        <tr><th><i>A</i><sub>2</sub></th><td>1</td><td>1</td><td>−1</td><td>−1</td><td class="l">R<sub>z</sub></td><td class="l">xy</td></tr>
+        <tr><th><i>B</i><sub>1</sub></th><td>1</td><td>−1</td><td>1</td><td>−1</td><td class="l">x, R<sub>y</sub></td><td class="l">xz</td></tr>
+        <tr><th><i>B</i><sub>2</sub></th><td>1</td><td>−1</td><td>−1</td><td>1</td><td class="l">y, R<sub>x</sub></td><td class="l">yz</td></tr>
+        <tr class="calc sep" id="t-un"><th>不动原子数 · <span id="t-mol"></span></th><td class="v"></td><td class="v"></td><td class="v"></td><td class="v"></td><td></td><td></td></tr>
+        <tr class="calc" id="t-pa"><th>每个不动原子的贡献</th><td class="v"></td><td class="v"></td><td class="v"></td><td class="v"></td><td></td><td></td></tr>
+        <tr class="calc g" id="t-g"><th>Γ<sub>3N</sub> 的特征标（两行相乘）</th><td class="v"></td><td class="v"></td><td class="v"></td><td class="v"></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="formula">约化公式 reduction formula（<i>C</i><sub>2v</sub> 中每一类只有一个操作，<i>h</i> = 4）：</p>
+  <math display="block">
+    <msub><mi>n</mi><mi>i</mi></msub><mo>=</mo><mfrac><mn>1</mn><mi>h</mi></mfrac>
+    <munder><mo>∑</mo><mi>R</mi></munder>
+    <msub><mi>χ</mi><mi>Γ</mi></msub><mo stretchy="false">(</mo><mi>R</mi><mo stretchy="false">)</mo>
+    <mo>·</mo>
+    <msub><mi>χ</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mi>R</mi><mo stretchy="false">)</mo>
+  </math>
+  <div id="red-lines" style="margin-top:10px"></div>
+  <div id="t-sum"></div>
+  <p class="aside">坐标约定：本页按 Mulliken（1955）的建议，让平面 <i>C</i><sub>2v</sub> 分子躺在 <i>yz</i> 平面、<i>x</i> 轴垂直于分子平面。有些教材把分子放在 <i>xz</i> 平面，那样 <i>B</i><sub>1</sub> 与 <i>B</i><sub>2</sub> 两个标签会对调——点群和振动总数不变，只是名字互换。检查：邻二氮菲的 21<i>A</i><sub>1</sub> + 20<i>B</i><sub>2</sub> = 41 = 2<i>N</i> − 3 个面内振动，10<i>A</i><sub>2</sub> + 9<i>B</i><sub>1</sub> = 19 = <i>N</i> − 3 个面外振动。</p>
+</div></section>
+
+<section id="pitfalls"><div class="wrap read">
+  <p class="kicker">06 / 常见错误</p>
+  <h2>这道题容易错在哪</h2>
+  <ul class="pits">
+    <li><b>把邻二氮菲当成 <span class="pg"><i>D</i><sub>2h</sub></span>。</b>那是蒽（线形稠合）的点群。邻二氮菲角形稠合，两个 N 都在“湾区”一侧，垂直于主轴的两条 <i>C</i><sub>2</sub> 都会把 N 送到没有 N 的地方。</li>
+    <li><b>忘了分子平面本身也是镜面。</b>任何平面分子都至少有这一个 <i>σ</i>。它不挪动任何原子，但仍是一个独立的操作——打开 02 节的“p 轨道”开关，执行 <i>σ</i><sub>v</sub>′(<i>yz</i>)，看垂直于平面的 p 轨道两瓣如何对调。</li>
+    <li><b>把 SnCl₂ 画成直线，答 <span class="pg"><i>D</i><sub>∞h</sub></span>。</b>Sn(II) 有一对孤对电子，AX₂E 是弯曲形。线形的是 HgCl₂、BeCl₂ 这类价层没有孤对的 AX₂。</li>
+    <li><b>用固态结构判断 SnCl₂。</b>晶体里是氯桥连接的链；题目问的是孤立分子（气相单体）。</li>
+    <li><b>把 <i>σ</i><sub>v</sub> 和 <i>σ</i><sub>h</sub> 搞混。</b><i>σ</i><sub>h</sub> 必须<em>垂直于主轴</em>。<i>C</i><sub>2v</sub> 里的两个镜面都<em>包含</em> <i>C</i><sub>2</sub> 轴，所以都是 <i>σ</i><sub>v</sub>。</li>
+    <li><b>把对称元素放错位置。</b>邻二氮菲的 <i>C</i><sub>2</sub> 不穿过任何原子，而是穿过 C5–C6 和 C10a–C10b 两根键的中点；所有元素都必须过质心。</li>
+    <li><b>以为 <i>B</i><sub>1</sub>/<i>B</i><sub>2</sub> 标签写反了就是错。</b>那只是坐标约定不同（见 05 节末尾），点群本身不受影响。</li>
+  </ul>
+</div></section>
+
+<section id="glossary"><div class="wrap read">
+  <p class="kicker">07 / 术语表</p>
+  <h2>中英对照</h2>
+  <div class="tbl-wrap">
+    <table class="gloss">
+      <thead><tr><th>中文</th><th>符号</th><th>English</th><th>在本题中</th></tr></thead>
+      <tbody>
+        <tr><td>点群</td><td>—</td><td>point group</td><td>分子全部对称操作构成的群；两题答案都是 <i>C</i><sub>2v</sub></td></tr>
+        <tr><td>对称元素</td><td>—</td><td>symmetry element</td><td>轴、平面、点等几何对象</td></tr>
+        <tr><td>对称操作</td><td>—</td><td>symmetry operation</td><td>绕对称元素做的、做完看不出区别的动作</td></tr>
+        <tr><td>恒等</td><td>E</td><td>identity</td><td>每个群都有</td></tr>
+        <tr><td>真转动轴 / 主轴</td><td>C<sub>n</sub></td><td>proper rotation axis / principal axis</td><td>本题主轴是 <i>C</i><sub>2</sub>，定为 <i>z</i></td></tr>
+        <tr><td>镜面（反映面）</td><td>σ</td><td>mirror plane (reflection plane)</td><td>—</td></tr>
+        <tr><td>垂直镜面</td><td>σ<sub>v</sub></td><td>vertical mirror plane</td><td>含主轴；本题有两个</td></tr>
+        <tr><td>水平镜面</td><td>σ<sub>h</sub></td><td>horizontal mirror plane</td><td>垂直于主轴；本题没有</td></tr>
+        <tr><td>二面镜面</td><td>σ<sub>d</sub></td><td>dihedral mirror plane</td><td>含主轴且平分两条 ⊥<i>C</i><sub>2</sub>；本题不涉及</td></tr>
+        <tr><td>反演中心</td><td>i</td><td>inversion center</td><td>本题没有；蒽、HgCl₂ 有</td></tr>
+        <tr><td>旋转反映轴</td><td>S<sub>n</sub></td><td>improper rotation axis</td><td>—</td></tr>
+        <tr><td>群的阶</td><td>h</td><td>order of a group</td><td><i>C</i><sub>2v</sub> 的 <i>h</i> = 4</td></tr>
+        <tr><td>质心</td><td>—</td><td>center of mass</td><td>所有对称元素都穿过它</td></tr>
+        <tr><td>特征标表</td><td>—</td><td>character table</td><td>05 节</td></tr>
+        <tr><td>不可约表示 / 可约表示</td><td>Γ</td><td>irreducible / reducible representation</td><td>A₁、A₂、B₁、B₂ / Γ<sub>3N</sub></td></tr>
+        <tr><td>约化公式</td><td>—</td><td>reduction formula</td><td>把 Γ<sub>3N</sub> 拆成不可约表示</td></tr>
+        <tr><td>简正振动</td><td>—</td><td>normal mode (of vibration)</td><td>邻二氮菲 60 个，SnCl₂ 3 个</td></tr>
+        <tr><td>红外活性 / 拉曼活性</td><td>—</td><td>IR active / Raman active</td><td>—</td></tr>
+        <tr><td>孤对电子</td><td>—</td><td>lone pair</td><td>使 SnCl₂ 弯曲；使邻二氮菲能螯合</td></tr>
+        <tr><td>价层电子对互斥理论</td><td>—</td><td>VSEPR theory</td><td>SnCl₂：AX₂E</td></tr>
+        <tr><td>惰性电子对效应</td><td>—</td><td>inert-pair effect</td><td>解释键角为何接近 90°（常见说法）</td></tr>
+        <tr><td>螯合（配体）</td><td>—</td><td>chelating (ligand)</td><td>邻二氮菲是经典的双齿螯合配体</td></tr>
+        <tr><td>邻二氮菲 / 1,10-菲咯啉</td><td>phen</td><td><i>o</i>-phenanthroline / 1,10-phenanthroline</td><td>题 a</td></tr>
+        <tr><td>氯化亚锡 / 二氯化锡</td><td>—</td><td>stannous chloride / tin(II) chloride</td><td>题 b</td></tr>
+        <tr><td>稠合（线形 / 角形）</td><td>—</td><td>fused (linear / angular)</td><td>蒽 / 菲</td></tr>
+        <tr><td>气相电子衍射</td><td>GED</td><td>gas-phase electron diffraction</td><td>测得 SnCl₂ 键角 98.1°</td></tr>
+        <tr><td>执行（操作）</td><td>—</td><td>to perform / apply (an operation)</td><td>动词</td></tr>
+        <tr><td>旋转 / 反映 / 反演</td><td>—</td><td>to rotate / reflect / invert</td><td>动词</td></tr>
+        <tr><td>指定点群</td><td>—</td><td>to assign a point group</td><td>题干 “Assign … to the proper point group”</td></tr>
+        <tr><td>约化</td><td>—</td><td>to reduce (a representation)</td><td>动词</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div></section>
+
+<section id="sources"><div class="wrap read">
+  <p class="kicker">08 / 来源与核验</p>
+  <h2>哪些是精确的，哪些是示意</h2>
+  <ul class="layers">
+    <li><span class="lk lk-orig">用户原图</span><span>题目照片保存在本专题的 <code>source/problem.png</code>。原图把邻二氮菲竖着画（N 在右侧）；本页把 <i>C</i><sub>2</sub> 轴放成竖直，只是转了个方向。</span></li>
+    <li><span class="lk lk-exact">精确</span><span>两个分子的点群、各对称操作成立与否、原子交换表、群乘法（如 <i>σ</i><sub>v</sub>(<i>xz</i>)·<i>C</i><sub>2</sub> = <i>σ</i><sub>v</sub>′(<i>yz</i>)）、Γ<sub>3N</sub> 与 Γ<sub>振动</sub> 的约化结果。由 <code>source/verify.mjs</code> 从坐标出发重新穷举对称元素、判点群、约化，共 39 项检查，结果在 <code>verification.json</code>。</span></li>
+    <li><span class="lk lk-approx">近似（文献值）</span><span>SnCl₂ 气相键角 98.1°（气相电子衍射，Nasarenko 等 1985）。绘图用 Sn–Cl = 2.34 Å，文献中实验和理论值多在 2.33–2.39 Å。点群结论与这些数值无关：60°–179.9° 之间每隔 0.1° 都已验证为 <i>C</i><sub>2v</sub>。</span></li>
+    <li><span class="lk lk-schem">教学示意</span><span>邻二氮菲用理想正六边形搭建（C–C、C–N 均取 1.40 Å，C–H 1.08 Å），真实分子键长略有差别，但对称性完全相同。原子球大小、孤对电子“气球”、p 轨道两瓣的大小和位置都是示意。HgCl₂ 的键长也是示意值。</span></li>
+  </ul>
+  <h3>参考文献</h3>
+  <ol class="refs">
+    <li>A. Ya. Nasarenko, V. P. Spiridonov, B. S. Butayev, E. Z. Zasorin, “Second-order perturbation approach to anharmonic analysis of molecules by electron diffraction. Part III. Morse-like potential function of SnCl₂, SnBr₂, SnI₂, Ga₂O and Tl₂O”, <i>J. Mol. Struct.</i> <b>119</b>, 263–270 (1985).（SnCl₂ 气相键角）</li>
+    <li>“First-Principle Characterization of Structural, Electronic, and Optical Properties of Tin-Halide Monomers”, arXiv:2402.12778 —— 汇总了 SnCl₂ 的实验与计算几何（键角 98.1° 及键长范围）：<a href="https://arxiv.org/abs/2402.12778">arxiv.org/abs/2402.12778</a></li>
+    <li>R. S. Mulliken, “Report on Notation for the Spectra of Polyatomic Molecules”, <i>J. Chem. Phys.</i> <b>23</b>, 1997 (1955).（平面 <i>C</i><sub>2v</sub> 分子的坐标约定）</li>
+    <li>分子连接方式核对：PubChem 1,10-phenanthroline（CID 1318）、1,7-phenanthroline（CID 67473）、phenanthrene（CID 995）、anthracene（CID 8418）。</li>
+  </ol>
+  <h3>技术</h3>
+  <p style="font-size:14px">单文件 HTML：3D 模型是手写的 SVG 投影（无 WebGL、无第三方库），公式用浏览器原生 MathML，不引用 CDN 或在线字体，下载后可离线打开。浅色 / 深色随系统切换；减少动态效果的系统设置下，操作动画会直接跳到结果。</p>
+</div></section>
+</main>
+
+<footer><div class="wrap">Molecular Symmetry Graph · <a href="../../index.html">返回目录</a> · 题 1-22：邻二氮菲 与 SnCl₂ 的点群</div></footer>
+
+<script type="module">
+// sym.js — 分子几何与对称性引擎。页面（build.mjs 内联）与 verify.mjs 共用同一份代码，不碰 DOM。
+//
+// 坐标约定（Mulliken 1955，平面 C2v 分子）：z = C2 主轴，竖直向上；分子平面 = yz 平面；x 垂直于分子平面。
+// 所有分子在建好后都把质心平移到原点：任何对称元素都必须穿过质心。
+
+const BOND = 1.40;        // 理想化芳环键长 (Å)，C–C 与 C–N 取同一值：教学示意
+const CH = 1.08;          // C–H (Å)：教学示意
+const SNCL = 2.34;        // 绘图用 Sn–Cl (Å)；文献值集中在 2.33–2.39 Å
+const SNCL_ANGLE = 98.1;  // 气相电子衍射 Cl–Sn–Cl (°)，Nasarenko 等 1985
+const HGCL = 2.25;        // 绘图用 Hg–Cl (Å)：示意
+
+const ELEMENTS = {
+  H: { mass: 1.008, r: 0.25 },
+  C: { mass: 12.011, r: 0.40 },
+  N: { mass: 14.007, r: 0.39 },
+  Cl: { mass: 35.45, r: 0.66 },
+  Sn: { mass: 118.71, r: 0.82 },
+  Hg: { mass: 200.59, r: 0.80 },
+};
+
+// ───────── 向量与 3×3 矩阵（行优先，长度 9 的数组） ─────────
+const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const scale = (a, s) => [a[0] * s, a[1] * s, a[2] * s];
+const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const len = (a) => Math.hypot(a[0], a[1], a[2]);
+const unit = (a) => scale(a, 1 / len(a));
+
+const I3 = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+const apply = (M, p) => [
+  M[0] * p[0] + M[1] * p[1] + M[2] * p[2],
+  M[3] * p[0] + M[4] * p[1] + M[5] * p[2],
+  M[6] * p[0] + M[7] * p[1] + M[8] * p[2],
+];
+function mul(A, B) {
+  const C = new Array(9).fill(0);
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) for (let k = 0; k < 3; k++) C[r * 3 + c] += A[r * 3 + k] * B[k * 3 + c];
+  return C;
+}
+const trace = (M) => M[0] + M[4] + M[8];
+const det = (M) => M[0] * (M[4] * M[8] - M[5] * M[7]) - M[1] * (M[3] * M[8] - M[5] * M[6]) + M[2] * (M[3] * M[7] - M[4] * M[6]);
+const matClose = (A, B, tol = 1e-9) => A.every((x, i) => Math.abs(x - B[i]) < tol);
+
+/** 绕单位轴 u 转 θ（Rodrigues） */
+function rot(u, th) {
+  const [x, y, z] = unit(u), c = Math.cos(th), s = Math.sin(th), t = 1 - c;
+  return [t * x * x + c, t * x * y - s * z, t * x * z + s * y,
+          t * x * y + s * z, t * y * y + c, t * y * z - s * x,
+          t * x * z - s * y, t * y * z + s * x, t * z * z + c];
+}
+/** 对法向为 n、过原点的平面作反映：I − 2nnᵀ */
+function refl(n) {
+  const [x, y, z] = unit(n);
+  return [1 - 2 * x * x, -2 * x * y, -2 * x * z, -2 * x * y, 1 - 2 * y * y, -2 * y * z, -2 * x * z, -2 * y * z, 1 - 2 * z * z];
+}
+const INV = [-1, 0, 0, 0, -1, 0, 0, 0, -1];
+/** 旋转反映 Sn：先绕 u 转 θ，再对垂直于 u 的平面反映 */
+const improper = (u, th) => mul(refl(u), rot(u, th));
+
+// ───────── 分子 ─────────
+// 分子对象：{ atoms: [{ el, label, pos }], bonds: [[i, j]], rings?: [{ center, members }] }
+
+/** 把质心移到原点（就地修改），返回分子本身 */
+function centerMolecule(mol) {
+  let M = 0, c = [0, 0, 0];
+  for (const a of mol.atoms) { const m = ELEMENTS[a.el].mass; M += m; c = add(c, scale(a.pos, m)); }
+  c = scale(c, 1 / M);
+  for (const a of mol.atoms) a.pos = sub(a.pos, c);
+  for (const r of mol.rings || []) r.center = sub(r.center, c);
+  mol.com = c;
+  return mol;
+}
+
+const S3 = Math.sqrt(3);
+// 菲 / 菲咯啉骨架，按 1,10-菲咯啉的编号；(u, w) 以 BOND 为单位，u 水平、w 竖直。
+// 中环正六边形中心在原点，C5–C6 在上，C10a–C10b 在下；两个外环角形稠合在左下、右下。
+const SKEL = [
+  ["1", -1, -S3], ["2", -2, -S3], ["3", -2.5, -S3 / 2], ["4", -2, 0], ["4a", -1, 0],
+  ["5", -0.5, S3 / 2], ["6", 0.5, S3 / 2], ["6a", 1, 0], ["7", 2, 0], ["8", 2.5, -S3 / 2],
+  ["9", 2, -S3], ["10", 1, -S3], ["10a", 0.5, -S3 / 2], ["10b", -0.5, -S3 / 2],
+];
+const SKEL_BONDS = [
+  ["1", "2"], ["2", "3"], ["3", "4"], ["4", "4a"], ["4a", "10b"], ["10b", "1"],
+  ["4a", "5"], ["5", "6"], ["6", "6a"], ["6a", "10a"], ["10a", "10b"],
+  ["6a", "7"], ["7", "8"], ["8", "9"], ["9", "10"], ["10", "10a"],
+];
+const SKEL_RINGS = [
+  { c: [-1.5, -S3 / 2], m: ["1", "2", "3", "4", "4a", "10b"] },
+  { c: [0, 0], m: ["4a", "5", "6", "6a", "10a", "10b"] },
+  { c: [1.5, -S3 / 2], m: ["6a", "7", "8", "9", "10", "10a"] },
+];
+
+/** 菲骨架；nLocants 里的位置换成 N（例如 ["1","10"] 得到 1,10-菲咯啉）。分子放在 yz 平面。 */
+function phenanthreneFamily(nLocants = []) {
+  const atoms = [], bonds = [], idx = {};
+  for (const [loc, u, w] of SKEL) {
+    idx[loc] = atoms.length;
+    atoms.push({ el: nLocants.includes(loc) ? "N" : "C", label: loc, pos: [0, u * BOND, w * BOND] });
+  }
+  for (const [a, b] of SKEL_BONDS) bonds.push([idx[a], idx[b]]);
+  const rings = SKEL_RINGS.map((r) => ({ center: [0, r.c[0] * BOND, r.c[1] * BOND], members: r.m.map((l) => idx[l]) }));
+  for (const [loc, u, w] of SKEL) {
+    const a = atoms[idx[loc]];
+    if (a.el !== "C") continue;
+    const own = SKEL_RINGS.filter((r) => r.m.includes(loc));
+    if (own.length !== 1) continue; // 稠合碳没有 H
+    const dir = unit([0, u - own[0].c[0], w - own[0].c[1]]);
+    bonds.push([idx[loc], atoms.length]);
+    atoms.push({ el: "H", label: "H" + loc, pos: add(a.pos, scale(dir, CH)) });
+  }
+  return centerMolecule({ atoms, bonds, rings });
+}
+
+/** 蒽：三个六元环线形稠合。 */
+function anthracene() {
+  const centers = [[-S3, 0], [0, 0], [S3, 0]];
+  const verts = [], rings = [];
+  for (const c of centers) {
+    const m = [];
+    for (let k = 0; k < 6; k++) {
+      const a = (30 + 60 * k) * Math.PI / 180, p = [c[0] + Math.cos(a), c[1] + Math.sin(a)];
+      let j = verts.findIndex((q) => Math.hypot(q[0] - p[0], q[1] - p[1]) < 1e-6);
+      if (j < 0) { j = verts.length; verts.push(p); }
+      m.push(j);
+    }
+    rings.push({ c, m });
+  }
+  const atoms = verts.map((p, i) => ({ el: "C", label: "c" + i, pos: [0, p[0] * BOND, p[1] * BOND] }));
+  const bonds = [], seen = new Set();
+  for (const r of rings) for (let k = 0; k < 6; k++) {
+    const a = r.m[k], b = r.m[(k + 1) % 6], key = Math.min(a, b) + "-" + Math.max(a, b);
+    if (!seen.has(key)) { seen.add(key); bonds.push([a, b]); }
+  }
+  verts.forEach((p, i) => {
+    const own = rings.filter((r) => r.m.includes(i));
+    if (own.length !== 1) return;
+    const dir = unit([0, p[0] - own[0].c[0], p[1] - own[0].c[1]]);
+    bonds.push([i, atoms.length]);
+    atoms.push({ el: "H", label: "h" + i, pos: add(atoms[i].pos, scale(dir, CH)) });
+  });
+  return centerMolecule({ atoms, bonds, rings: rings.map((r) => ({ center: [0, r.c[0] * BOND, r.c[1] * BOND], members: r.m })) });
+}
+
+/** AX₂ 三原子分子：中心原子在 z 轴上，两个配体在 yz 平面内、向 −z 张开 angleDeg。 */
+function triatomic(central, ligand, angleDeg, r) {
+  const h = angleDeg * Math.PI / 360;
+  const atoms = [
+    { el: central, label: central, pos: [0, 0, 0] },
+    { el: ligand, label: ligand + "1", pos: [0, -r * Math.sin(h), -r * Math.cos(h)] },
+    { el: ligand, label: ligand + "2", pos: [0, r * Math.sin(h), -r * Math.cos(h)] },
+  ];
+  return centerMolecule({ atoms, bonds: [[0, 1], [0, 2]] });
+}
+
+// ───────── 对称性检测 ─────────
+// 本页所有坐标都是解析构造的精确值（误差 ~1e-12 Å），所以判定容差可以取得很紧；
+// 取 0.01 Å 时，179° 的 SnCl2 会被误判成高阶群（Cl 几乎在轴上，转一下只挪动不到 0.01 Å）。
+const TOL = 1e-4;
+/** 位置 p、元素 el 落在参考原子集 ref 的哪个原子上（找不到返回 −1） */
+function siteOf(p, el, ref, tol = 0.02) {
+  for (let j = 0; j < ref.length; j++) if (ref[j].el === el && len(sub(p, ref[j].pos)) < tol) return j;
+  return -1;
+}
+/** M 是否把分子映回自身：每个原子都落在同种原子原来的位置上 */
+function isSymmetry(atoms, M, tol = TOL) {
+  for (const a of atoms) if (siteOf(apply(M, a.pos), a.el, atoms, tol) < 0) return false;
+  return true;
+}
+/** M 作用后原地不动的原子数 */
+const unmoved = (atoms, M, tol = TOL) => atoms.filter((a) => len(sub(apply(M, a.pos), a.pos)) < tol).length;
+
+/**
+ * 穷举候选方向，找出全部对称元素（分子须已居中）。
+ * 候选轴 / 法向：坐标轴、原子方向、同种原子对的中点方向与差方向、任意两原子位矢的叉积（平面分子的法向）。
+ */
+function findElements(atoms, tol = TOL) {
+  const P = atoms.map((a) => a.pos);
+  const far = P.reduce((b, p) => (len(p) > len(b) ? p : b), [0, 0, 0]);
+  const linear = atoms.length >= 2 && len(far) > tol && P.every((p) => len(cross(p, unit(far))) < tol);
+  const dirs = [];
+  const addDir = (d) => {
+    const L = len(d);
+    if (L < 1e-6) return;
+    d = scale(d, 1 / L);
+    for (const e of dirs) if (Math.abs(dot(d, e)) > 1 - 1e-7) return;
+    dirs.push(d);
+  };
+  [[1, 0, 0], [0, 1, 0], [0, 0, 1]].forEach(addDir);
+  P.forEach(addDir);
+  for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) {
+    if (atoms[i].el === atoms[j].el) { addDir(add(P[i], P[j])); addDir(sub(P[i], P[j])); }
+    addDir(cross(P[i], P[j]));
+  }
+  const axes = [], planes = [];
+  for (const d of dirs) {
+    for (let n = 8; n >= 2; n--) if (isSymmetry(atoms, rot(d, 2 * Math.PI / n), tol)) { axes.push({ dir: d, n }); break; }
+    if (isSymmetry(atoms, refl(d), tol)) planes.push({ normal: d });
+  }
+  return { linear, linearAxis: linear ? unit(far) : null, axes, planes, inversion: isSymmetry(atoms, INV, tol) };
+}
+
+/** 按 Schoenflies 判定流程给出点群，并记下每一步的答案（页面上的流程图用同一套逻辑）。 */
+function classify(atoms, E = findElements(atoms)) {
+  if (E.linear) return { group: E.inversion ? "D∞h" : "C∞v", linear: true, inversion: E.inversion };
+  const high = E.axes.filter((a) => a.n >= 3);
+  if (high.length >= 2) {
+    const m = Math.max(...high.map((a) => a.n));
+    const group = m === 5 ? (E.inversion ? "Ih" : "I") : m === 4 ? (E.inversion ? "Oh" : "O")
+      : E.inversion ? "Th" : E.planes.length >= 6 ? "Td" : "T";
+    return { group, cubic: true };
+  }
+  if (!E.axes.length) return { group: E.planes.length ? "Cs" : E.inversion ? "Ci" : "C1", n: 1, nAxes: 0, nPlanes: E.planes.length, inversion: E.inversion };
+  const n = Math.max(...E.axes.map((a) => a.n));
+  const perpOf = (ax) => E.axes.filter((b) => b !== ax && Math.abs(dot(b.dir, ax.dir)) < 1e-6 && b.n % 2 === 0).length;
+  const principal = E.axes.filter((a) => a.n === n).reduce((best, a) => (perpOf(a) > perpOf(best) ? a : best));
+  const perpC2 = perpOf(principal);
+  const sigmaH = E.planes.some((p) => Math.abs(dot(p.normal, principal.dir)) > 1 - 1e-6);
+  const sigmaV = E.planes.filter((p) => Math.abs(dot(p.normal, principal.dir)) < 1e-6).length;
+  const s2n = isSymmetry(atoms, improper(principal.dir, Math.PI / n));
+  let group;
+  if (perpC2 >= n) group = sigmaH ? `D${n}h` : sigmaV >= n ? `D${n}d` : `D${n}`;
+  else if (sigmaH) group = `C${n}h`;
+  else if (sigmaV >= n) group = `C${n}v`;
+  else if (s2n) group = `S${2 * n}`;
+  else group = `C${n}`;
+  return { group, n, principal, perpC2, sigmaH, sigmaV, s2n, inversion: E.inversion, nAxes: E.axes.length, nPlanes: E.planes.length };
+}
+
+/** 点群的阶 h */
+function groupOrder(g) {
+  if (g.includes("∞")) return Infinity;
+  if (g === "C1") return 1;
+  if (g === "Cs" || g === "Ci") return 2;
+  const m = g.match(/^([CDS])(\d+)([vhd]?)$/);
+  if (!m) return { T: 12, Td: 24, Th: 24, O: 24, Oh: 48, I: 60, Ih: 120 }[g];
+  const n = +m[2];
+  if (m[1] === "S") return n;
+  if (m[1] === "C") return m[3] ? 2 * n : n;
+  return m[3] ? 4 * n : 2 * n;
+}
+
+// ───────── C2v 特征标表与约化 ─────────
+const C2V = {
+  h: 4,
+  ops: [
+    { id: "E", M: I3 },
+    { id: "C2", M: rot([0, 0, 1], Math.PI) },
+    { id: "sxz", M: refl([0, 1, 0]) },
+    { id: "syz", M: refl([1, 0, 0]) },
+  ],
+  irreps: [
+    { name: "A1", chi: [1, 1, 1, 1], lin: "z", quad: "x², y², z²" },
+    { name: "A2", chi: [1, 1, -1, -1], lin: "Rz", quad: "xy" },
+    { name: "B1", chi: [1, -1, 1, -1], lin: "x, Ry", quad: "xz" },
+    { name: "B2", chi: [1, -1, -1, 1], lin: "y, Rx", quad: "yz" },
+  ],
+};
+/** 约化公式 nᵢ = (1/h) Σ_R χ(R) χᵢ(R)；C2v 每类只有一个操作 */
+const reduce = (chars, table = C2V) => table.irreps.map((ir) => ir.chi.reduce((s, c, k) => s + c * chars[k], 0) / table.h);
+
+/** 3N 笛卡尔位移表示：χ(R) = 不动原子数 × tr(R)；平动 χ = tr(R)，转动 χ = det(R)·tr(R) */
+function cartesianAnalysis(atoms, table = C2V) {
+  const un = table.ops.map((o) => unmoved(atoms, o.M));
+  const perAtom = table.ops.map((o) => trace(o.M));
+  const g3n = un.map((u, k) => u * perAtom[k]);
+  const gTrans = perAtom;
+  const gRot = table.ops.map((o) => det(o.M) * trace(o.M));
+  const n3n = reduce(g3n, table), nT = reduce(gTrans, table), nR = reduce(gRot, table);
+  const nVib = n3n.map((x, k) => x - nT[k] - nR[k]);
+  return { unmoved: un, perAtom, g3n, gTrans, gRot, n3n, nT, nR, nVib };
+}
+
+// app.js — 页面交互。build.mjs 把它和 sym.js 内联进同一个 <script type="module">，sym.js 的函数在这里直接可用。
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const DEG = Math.PI / 180;
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const sleep = (ms) => new Promise((r) => setTimeout(r, reduceMotion ? Math.min(ms, 400) : ms));
+const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const lerp3 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+const n1 = (x) => x.toFixed(1);
+
+// ───────── 记号 ─────────
+const pgHTML = (g) => { const m = g.match(/^([A-Z])(.*)$/); return `<span class="pg"><i>${m[1]}</i>${m[2] ? `<sub>${m[2]}</sub>` : ""}</span>`; };
+const tsym = (main, sub = "", rest = "") =>
+  `<tspan font-style="italic">${main}</tspan>${sub ? `<tspan baseline-shift="sub" font-size="72%">${sub}</tspan>` : ""}${rest}`;
+const SUB = { 1: "₁", 2: "₂" };
+
+const OPS = {
+  E: { kind: "E", html: "<i>E</i>", sub: "恒等：什么都不做", cls: "e" },
+  C2z: { kind: "rot", axis: [0, 0, 1], ang: Math.PI, html: "<i>C</i><sub>2</sub>", sub: "绕主轴 z 转 180°", cls: "c2" },
+  sxz: { kind: "refl", n: [0, 1, 0], html: "<i>σ</i><sub>v</sub>(<i>xz</i>)", sub: "⊥ 分子平面、含 C₂", cls: "sxz" },
+  syz: { kind: "refl", n: [1, 0, 0], html: "<i>σ</i><sub>v</sub>′(<i>yz</i>)", sub: "分子平面本身", cls: "syz" },
+  C2x: { kind: "rot", axis: [1, 0, 0], ang: Math.PI, html: "<i>C</i><sub>2</sub>(<i>x</i>)", sub: "垂直于分子平面", cand: true },
+  C2y: { kind: "rot", axis: [0, 1, 0], ang: Math.PI, html: "<i>C</i><sub>2</sub>(<i>y</i>)", sub: "平面内、⊥ 主轴", cand: true },
+  inv: { kind: "inv", html: "<i>i</i>", sub: "质心处反演", cand: true },
+  sxy: { kind: "refl", n: [0, 0, 1], html: "<i>σ</i>(<i>xy</i>)", sub: "⊥ 主轴（σ<sub>h</sub> 候选）", cand: true },
+  Cinf: { kind: "rot", axis: [0, 1, 0], ang: Math.PI / 3, html: "<i>C</i><sub>∞</sub>(<i>y</i>)", sub: "绕分子轴转任意角（演示 60°）", cand: true, linearOnly: true },
+};
+const GROUP_OPS = ["E", "C2z", "sxz", "syz"];
+const CAND_OPS = ["C2x", "C2y", "inv", "sxy", "Cinf"];
+function matAt(op, t) {
+  if (op.kind === "E") return I3;
+  if (op.kind === "rot") return rot(op.axis, op.ang * t);
+  if (op.kind === "inv") { const k = 1 - 2 * t; return [k, 0, 0, 0, k, 0, 0, 0, k]; }
+  const [x, y, z] = unit(op.n), k = 2 * t; // 反映：原子沿法向匀速穿过镜面
+  return [1 - k * x * x, -k * x * y, -k * x * z, -k * x * y, 1 - k * y * y, -k * y * z, -k * x * z, -k * y * z, 1 - k * z * z];
+}
+const fullMat = (op) => matAt(op, 1);
+const inverseOp = (op) => (op.kind === "rot" ? { ...op, ang: -op.ang } : op);
+
+// ───────── 分子与状态 ─────────
+const MOLINFO = {
+  phen: { S: 42, xh: 3.0 },
+  sncl2: { S: 64, xh: 2.4 },
+};
+const ATEXT = { H: "#2b2e33", C: "#ffffff", N: "#ffffff", Cl: "#0d2d16", Sn: "#ffffff", Hg: "#ffffff" };
+const st = {
+  mol: "phen", angle: SNCL_ANGLE, M: null, P: [], base: [], att: [], B: null, pg: null,
+  net: I3, hist: [], cand: null, miss: [], fixed: [], tried: {},
+  yaw: -36 * DEG, pitch: 17 * DEG,
+  show: { el: true, lab: true, p: false, lp: true },
+  busy: false, demo: false, dirty: true,
+};
+
+const lobeR = (el) => Math.max(0.27, 0.5 * ELEMENTS[el].r); // p 轨道一瓣的示意半径 (Å)
+const atomName = (a) => (st.mol === "phen" ? (a.el === "H" ? a.label : a.el + a.label) : a.el === "Sn" ? "Sn" : "Cl" + SUB[a.label.slice(-1)]);
+const atomShort = (a) => (st.mol === "phen" ? a.label : a.el === "Sn" ? "Sn" : `Cl<tspan baseline-shift="sub" font-size="70%">${a.label.slice(-1)}</tspan>`);
+
+function buildMol() {
+  st.M = st.mol === "phen" ? phenanthreneFamily(["1", "10"]) : triatomic("Sn", "Cl", st.angle, SNCL);
+  const P = st.M.atoms.map((a) => a.pos.slice()), att = [];
+  st.M.atoms.forEach((a, i) => {
+    if (a.el === "H") return;
+    const off = ELEMENTS[a.el].r + 0.9 * lobeR(a.el);
+    for (const s of [1, -1]) { att.push({ type: "p", sign: s, atom: i, k: P.length }); P.push(add(a.pos, [s * off, 0, 0])); }
+  });
+  if (st.mol === "phen") {
+    st.M.atoms.forEach((a, i) => {
+      if (a.el !== "N") return;
+      const ring = st.M.rings.find((r) => r.members.includes(i));
+      att.push({ type: "lp", atom: i, k: P.length });
+      P.push(add(a.pos, scale(unit(sub(a.pos, ring.center)), 1.05)));
+    });
+  } else if (st.angle < 180) {
+    att.push({ type: "lp", atom: 0, k: P.length });
+    P.push(add(st.M.atoms[0].pos, [0, 0, 1.3]));
+  }
+  st.base = P.map((p) => p.slice());
+  st.P = P;
+  st.att = att;
+  // 画对称元素用的范围：取全部点的外包，再留边；SnCl2 保证有一定高度
+  let ymax = 0, z0 = Infinity, z1 = -Infinity;
+  P.forEach((p) => { ymax = Math.max(ymax, Math.abs(p[1])); z0 = Math.min(z0, p[2]); z1 = Math.max(z1, p[2]); });
+  const m = st.mol === "phen" ? 0.85 : 0.95;
+  z0 -= m; z1 += m;
+  const minH = st.mol === "phen" ? 0 : 4.2;
+  if (z1 - z0 < minH) { const c = (z0 + z1) / 2; z0 = c - minH / 2; z1 = c + minH / 2; }
+  st.B = { y: ymax + m + 0.35, z0, z1, x: MOLINFO[st.mol].xh };
+  st.pg = classify(st.M.atoms);
+  st.net = I3; st.hist = []; st.cand = null; st.miss = []; st.fixed = [];
+  st.dirty = true;
+}
+
+// ───────── 3D 舞台 ─────────
+const stage = $("#stage"), Litems = $("#L-items"), Lover = $("#L-over");
+const PERSP = 26;
+let S = 42, labelK = 1;
+
+function proj(p) {
+  const cy = Math.cos(st.yaw), sy = Math.sin(st.yaw), cp = Math.cos(st.pitch), sp = Math.sin(st.pitch);
+  const x1 = p[0] * cy - p[1] * sy, y1 = p[0] * sy + p[1] * cy, z1 = p[2];
+  const d = x1 * cp + z1 * sp, z2 = -x1 * sp + z1 * cp;
+  const f = PERSP / (PERSP - d);
+  return [y1 * S * f, -z2 * S * f, d, f];
+}
+const xy = (p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+
+function pushPlane(items, cls, e1, e2, a0, a1, b0, b1, na = 6, nb = 5) {
+  const g = [];
+  for (let i = 0; i <= na; i++) {
+    g.push([]);
+    for (let j = 0; j <= nb; j++) g[i].push(proj(add(scale(e1, a0 + ((a1 - a0) * i) / na), scale(e2, b0 + ((b1 - b0) * j) / nb))));
+  }
+  for (let i = 0; i < na; i++) for (let j = 0; j < nb; j++) {
+    const q = [g[i][j], g[i + 1][j], g[i + 1][j + 1], g[i][j + 1]];
+    items.push([(q[0][2] + q[1][2] + q[2][2] + q[3][2]) / 4, `<polygon class="pl ${cls}" points="${q.map(xy).join(" ")}"/>`]);
+  }
+  const edge = (p, q) => items.push([(p[2] + q[2]) / 2 + 0.002, `<line class="pe ${cls}" x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}"/>`]);
+  for (let i = 0; i < na; i++) { edge(g[i][0], g[i + 1][0]); edge(g[i][nb], g[i + 1][nb]); }
+  for (let j = 0; j < nb; j++) { edge(g[0][j], g[0][j + 1]); edge(g[na][j], g[na][j + 1]); }
+}
+
+function pushAxis(items, cls, a, b, marker) {
+  const N = 16;
+  for (let k = 0; k < N; k++) {
+    const p = proj(lerp3(a, b, k / N)), q = proj(lerp3(a, b, (k + 1) / N));
+    items.push([(p[2] + q[2]) / 2 + 0.003, `<line class="ax ${cls}" x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}"/>`]);
+  }
+  if (!marker) return;
+  const pa = proj(a), pb = proj(b);
+  let dx = pb[0] - pa[0], dy = pb[1] - pa[1];
+  const L = Math.hypot(dx, dy);
+  if (L < 1e-3) { dx = 0; dy = 1; } else { dx /= L; dy /= L; }
+  for (const P of [pa, pb]) {
+    if (marker === "dot") { items.push([P[2] + 0.004, `<circle class="axm ${cls}" cx="${P[0].toFixed(1)}" cy="${P[1].toFixed(1)}" r="5"/>`]); continue; }
+    const w = 7.5, h = 4.4, e1 = [P[0] + dy * w, P[1] - dx * w], e2 = [P[0] - dy * w, P[1] + dx * w];
+    const c1 = [P[0] + dx * h * 2, P[1] + dy * h * 2], c2 = [P[0] - dx * h * 2, P[1] - dy * h * 2];
+    items.push([P[2] + 0.004, `<path class="axm ${cls}" d="M${xy(e1)}Q${xy(c1)} ${xy(e2)}Q${xy(c2)} ${xy(e1)}Z"/>`]);
+  }
+}
+
+function render() {
+  st.dirty = false;
+  S = MOLINFO[st.mol].S;
+  const items = [], P = st.P, B = st.B, linear = !!st.pg.linear;
+  // 对称元素
+  if (st.show.el) {
+    pushPlane(items, "syz", [0, 1, 0], [0, 0, 1], -B.y, B.y, B.z0, B.z1);
+    pushPlane(items, "sxz", [1, 0, 0], [0, 0, 1], -B.x, B.x, B.z0, B.z1, 4, 5);
+    pushAxis(items, "c2", [0, 0, B.z0 - 0.5], [0, 0, B.z1 + 0.5], "lens");
+    if (linear) pushAxis(items, "cinf", [0, -B.y - 0.3, 0], [0, B.y + 0.3, 0], "dot");
+  }
+  if (st.cand === "sxy") pushPlane(items, "cand", [1, 0, 0], [0, 1, 0], -B.x, B.x, -B.y, B.y, 4, 6);
+  if (st.cand === "C2x") pushAxis(items, "cand", [-B.x - 0.6, 0, 0], [B.x + 0.6, 0, 0], "lens");
+  if (st.cand === "C2y" || (st.cand === "Cinf" && !st.show.el)) pushAxis(items, "cand", [0, -B.y - 0.3, 0], [0, B.y + 0.3, 0], "lens");
+  // 键：拆成两半，各取所连原子的颜色
+  for (const [i, j] of st.M.bonds) {
+    const A = proj(P[i]), Bq = proj(P[j]), Mq = proj(lerp3(P[i], P[j], 0.5));
+    const w = (0.17 * S * (A[3] + Bq[3])) / 2;
+    const ei = st.M.atoms[i].el, ej = st.M.atoms[j].el;
+    items.push([Math.min(A[2], Mq[2]) - 0.05, `<line class="bd b-${ei}" x1="${A[0].toFixed(1)}" y1="${A[1].toFixed(1)}" x2="${Mq[0].toFixed(1)}" y2="${Mq[1].toFixed(1)}" stroke-width="${w.toFixed(1)}"/>`]);
+    items.push([Math.min(Bq[2], Mq[2]) - 0.05, `<line class="bd b-${ej}" x1="${Mq[0].toFixed(1)}" y1="${Mq[1].toFixed(1)}" x2="${Bq[0].toFixed(1)}" y2="${Bq[1].toFixed(1)}" stroke-width="${w.toFixed(1)}"/>`]);
+  }
+  // 原子
+  st.M.atoms.forEach((a, i) => {
+    const p = proj(P[i]), r = ELEMENTS[a.el].r * S * p[3];
+    let s = `<circle class="at" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${r.toFixed(1)}" fill="url(#g-${a.el})"/>`;
+    if (st.show.lab && a.el !== "H") {
+      const fs = Math.min(r * (a.label.length > 2 ? 0.72 : 0.9), 13 * labelK, st.mol === "phen" ? 99 : r * 0.62);
+      s += `<text class="al" x="${p[0].toFixed(1)}" y="${p[1].toFixed(1)}" dy=".36em" font-size="${fs.toFixed(1)}" fill="${ATEXT[a.el]}">${atomShort(a)}</text>`;
+    }
+    items.push([p[2], s]);
+  });
+  // 附件：p 轨道两瓣、孤对电子
+  for (const t of st.att) {
+    if (t.type === "p" && st.show.p) {
+      const p = proj(P[t.k]), r = lobeR(st.M.atoms[t.atom].el) * S * p[3];
+      items.push([p[2], `<circle class="lobe ${t.sign > 0 ? "lplus" : "lminus"}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${r.toFixed(1)}"/>` +
+        (r > 6 ? `<text class="lobe-t" x="${p[0].toFixed(1)}" y="${p[1].toFixed(1)}" dy=".34em" font-size="${(r * 1.2).toFixed(1)}">${t.sign > 0 ? "+" : "−"}</text>` : "")]);
+    }
+    if (t.type === "lp" && st.show.lp) {
+      const A = proj(P[t.atom]), T = proj(P[t.k]);
+      let dx = T[0] - A[0], dy = T[1] - A[1];
+      const L = Math.hypot(dx, dy), ry = 0.34 * S * A[3];
+      if (L > 1e-3) { dx /= L; dy /= L; } else { dx = 1; dy = 0; }
+      const cx = A[0] + dx * L * 0.66, cy = A[1] + dy * L * 0.66, rx = Math.max(L * 0.5, ry);
+      const ang = (Math.atan2(dy, dx) * 180) / Math.PI;
+      const d1 = [cx - dy * ry * 0.4, cy + dx * ry * 0.4], d2 = [cx + dy * ry * 0.4, cy - dx * ry * 0.4];
+      items.push([(A[2] + T[2]) / 2, `<g class="lp"><ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" transform="rotate(${ang.toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})"/><circle cx="${d1[0].toFixed(1)}" cy="${d1[1].toFixed(1)}" r="2.3"/><circle cx="${d2[0].toFixed(1)}" cy="${d2[1].toFixed(1)}" r="2.3"/></g>`]);
+    }
+  }
+  items.sort((a, b) => a[0] - b[0]);
+  Litems.innerHTML = items.map((i) => i[1]).join("");
+
+  // 叠加层：原位置虚线圈、落空 / 不动标记、元素名
+  let o = "";
+  if (st.hist.length || st.busy || st.cand) {
+    st.M.atoms.forEach((a, i) => {
+      const p = proj(st.base[i]);
+      o += `<circle class="ghost" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${(ELEMENTS[a.el].r * S * p[3] + 1.5).toFixed(1)}"/>`;
+    });
+  }
+  for (const i of st.fixed) { const p = proj(P[i]); o += `<circle class="fixedring" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${(ELEMENTS[st.M.atoms[i].el].r * S * p[3] + 4).toFixed(1)}"/>`; }
+  for (const i of st.miss) { const p = proj(P[i]); o += `<circle class="missring" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${(ELEMENTS[st.M.atoms[i].el].r * S * p[3] + 4.5).toFixed(1)}"/>`; }
+  const lab = (p3, cls, html, dx = 8, dy = -6) => {
+    const p = proj(p3), fs = 15 * labelK;
+    // 标签大约 5 个字宽；放不下就翻到锚点左侧，避免在窄屏上被舞台边缘裁掉
+    const flip = p[0] + dx + fs * 3.6 > 296;
+    const x = flip ? p[0] - Math.abs(dx) : p[0] + dx;
+    return `<text class="el-lab ${cls}" x="${x.toFixed(1)}" y="${(p[1] + dy).toFixed(1)}" text-anchor="${flip ? "end" : "start"}" font-size="${fs.toFixed(1)}">${html}</text>`;
+  };
+  if (st.show.el) {
+    o += lab([0, 0, B.z1 + 0.5], "c2", linear ? tsym("C", "2", "′") : tsym("C", "2"), 10, -4);
+    o += lab([B.x, 0, B.z0], "sxz", linear ? tsym("σ", "h") : tsym("σ", "v", "(xz)"), 6, 18);
+    o += lab([0, B.y, B.z1], "syz", linear ? tsym("σ", "v") : tsym("σ", "v", "′(yz)"), 6, -6);
+    if (linear) o += lab([0, B.y + 0.3, 0], "cinf", tsym("C", "∞"), 10, 16);
+  }
+  if (st.cand && st.cand !== "Cinf") {
+    const where = { C2x: [B.x + 0.6, 0, 0], C2y: [0, B.y + 0.3, 0], sxy: [B.x, -B.y, 0], inv: [0, 0, 0] }[st.cand];
+    const html = { C2x: tsym("C", "2", "(x)"), C2y: tsym("C", "2", "(y)"), sxy: tsym("σ", "", "(xy)"), inv: tsym("i") }[st.cand];
+    o += lab(where, "cand", html, 10, st.cand === "inv" ? -12 : 16);
+  }
+  if (st.cand === "inv" || (linear && st.show.el)) {
+    const p = proj([0, 0, 0]);
+    o += `<g class="invc"><circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="6.5"/><circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2"/></g>`;
+  }
+  Lover.innerHTML = o;
+}
+
+function loop() {
+  if (st.dirty) render();
+  requestAnimationFrame(loop);
+}
+
+function tween(dur, step) {
+  return new Promise((done) => {
+    if (reduceMotion || dur <= 0) { step(1); st.dirty = true; return done(); }
+    const t0 = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - t0) / dur);
+      step(ease(t));
+      st.dirty = true;
+      if (t < 1) requestAnimationFrame(tick); else done();
+    };
+    requestAnimationFrame(tick);
+  });
+}
+
+// ───────── 执行操作并判定 ─────────
+const resultEl = $("#result"), netEl = $("#net");
+
+function sitePerm(start, end) {
+  const A = st.M.atoms;
+  const before = A.map((a, i) => siteOf(start[i], a.el, A, 0.02));
+  const after = A.map((a, i) => siteOf(end[i], a.el, A, 0.02));
+  return { before, after, miss: after.map((s, i) => (s < 0 ? i : -1)).filter((i) => i >= 0) };
+}
+
+async function runOp(id, fromDemo = false) {
+  if (st.busy || (st.demo && !fromDemo)) return;
+  const op = OPS[id];
+  st.busy = true;
+  setBusy();
+  st.miss = []; st.fixed = [];
+  st.cand = op.cand ? id : null;
+  const start = st.P.map((p) => p.slice());
+  resultEl.className = "result run";
+  resultEl.innerHTML = `正在执行 ${op.html} …`;
+  await tween(op.kind === "E" ? 450 : 1350, (t) => { const M = matAt(op, t); st.P = start.map((p) => apply(M, p)); });
+  const { before, after, miss } = sitePerm(start, st.P);
+  const A = st.M.atoms, n = A.length;
+  if (miss.length) {
+    st.miss = miss;
+    st.tried[id] = false;
+    const ex = miss.find((i) => A[i].el !== "H") ?? miss[0];
+    resultEl.className = "result bad";
+    resultEl.innerHTML = `<b>✗ ${op.html} 不是对称操作。</b>有 ${miss.length} 个原子落在没有同种原子的地方（红圈），例如 ${atomName(A[ex])}。做完以后分子和原来<em>可以区分</em>。<span class="soon">2 秒后自动还原</span>`;
+    paintTried();
+    st.dirty = true;
+    await sleep(2100);
+    st.miss = [];
+    const back = st.P.map((p) => p.slice()), inv = inverseOp(op);
+    await tween(800, (t) => { const M = matAt(inv, t); st.P = back.map((p) => apply(M, p)); });
+    st.P = start;
+    st.cand = null;
+    resultEl.querySelector(".soon")?.replaceWith(Object.assign(document.createElement("span"), { className: "soon", textContent: "已还原" }));
+  } else {
+    st.tried[id] = true;
+    st.net = mul(fullMat(op), st.net);
+    st.hist.push(id);
+    // 以"位置"为单位的置换：位置 before[i] 上的原子被送到位置 after[i]
+    const fixed = [], pairs = [], seen = new Set();
+    for (let i = 0; i < n; i++) {
+      const s = before[i], t = after[i];
+      if (s === t) { fixed.push(i); continue; }
+      if (seen.has(s)) continue;
+      seen.add(s); seen.add(t);
+      pairs.push([s, t]);
+    }
+    st.fixed = fixed;
+    const heavy = pairs.filter(([s]) => A[s].el !== "H"), hp = pairs.length - heavy.length;
+    let msg = `<b>✓ ${op.html} 是对称操作：</b>每个原子都落在同种原子原来的位置上。`;
+    if (heavy.length) msg += `<br>交换：${heavy.map(([s, t]) => `${atomName(A[s])} ⇄ ${atomName(A[t])}`).join(" · ")}${hp ? `；另外 ${hp * 2} 个 H 也两两交换` : ""}。`;
+    msg += `<br>原地不动的原子：<b>${fixed.length}</b> 个${fixed.length === n ? "（全部）" : fixed.length ? `（${fixed.map((i) => atomName(A[i])).join("、")}，绿圈）` : ""}。`;
+    if (id === "E") msg += "每个点群都必须含 E。";
+    else if (fixed.length === n && op.kind === "refl") msg += `原子一个没动，但这<em>不是</em>“什么都没做”：垂直于分子平面的 p 轨道 +/− 两瓣被对调了${st.show.p ? "（看青色与橙色两瓣换了边）" : "（打开下方「p 轨道」开关再做一次就能看到）"}。`;
+    resultEl.className = "result ok";
+    resultEl.innerHTML = msg;
+    st.cand = op.cand ? id : null;
+    paintTried();
+    paintNet();
+  }
+  st.busy = false;
+  setBusy();
+  st.dirty = true;
+}
+
+function paintNet() {
+  if (!st.hist.length) { netEl.innerHTML = ""; return; }
+  const names = { E: OPS.E, C2z: OPS.C2z, sxz: OPS.sxz, syz: OPS.syz, C2x: OPS.C2x, C2y: OPS.C2y, inv: OPS.inv, sxy: OPS.sxy };
+  const eq = Object.entries(names).find(([, op]) => matClose(fullMat(op), st.net, 1e-6));
+  const chain = st.hist.map((h) => OPS[h].html).join(" → ");
+  netEl.innerHTML = `<span class="net-k">累计</span> ${chain}${st.hist.length > 1 ? ` <span class="net-eq">＝ 只做一次 ${eq ? eq[1].html : "（一个绕分子轴的转动）"}</span>` : ""}` +
+    (st.hist.length > 1 && eq ? `<span class="net-why">两个操作接连做，结果仍是群里的一个操作：这就是“封闭性”。</span>` : "");
+}
+
+function paintTried() {
+  $$(".op").forEach((b) => {
+    const v = st.tried[b.dataset.op];
+    b.querySelector(".op-st").textContent = v === true ? "✓" : v === false ? "✗" : "";
+    b.classList.toggle("is-ok", v === true);
+    b.classList.toggle("is-bad", v === false);
+  });
+}
+const locked = () => st.busy || st.demo;
+function setBusy() { $$(".op, [data-demo], #reset, [data-mol-tab], #ang, [data-ang]").forEach((b) => (b.disabled = locked())); }
+
+function resetPose(msg = true) {
+  if (st.busy) return;
+  st.P = st.base.map((p) => p.slice());
+  st.net = I3; st.hist = []; st.cand = null; st.miss = []; st.fixed = [];
+  paintNet();
+  if (msg) { resultEl.className = "result"; resultEl.innerHTML = "已复位到原始取向。"; }
+  st.dirty = true;
+}
+
+// ───────── 读数、开关、分子切换 ─────────
+function paintReadout() {
+  const g = st.pg.group;
+  $("#ro-pg").innerHTML = pgHTML(g);
+  const desc = {
+    C2v: `<i>E</i> · 1 条 <i>C</i><sub>2</sub> · 2 个 <i>σ</i><sub>v</sub> · 无 <i>i</i> · 阶 <i>h</i> = 4`,
+    "D∞h": `<i>E</i> · <i>C</i><sub>∞</sub> · ∞<i>σ</i><sub>v</sub> · <i>σ</i><sub>h</sub> · <i>i</i> · ∞<i>C</i><sub>2</sub> · 阶 <i>h</i> = ∞`,
+  }[g] || `${st.pg.nAxes} 条转轴 · ${st.pg.nPlanes} 个镜面${st.pg.inversion ? " · 有 i" : ""}`;
+  $("#ro-el").innerHTML = desc;
+  const linear = !!st.pg.linear;
+  $("#ops-cand-h").innerHTML = linear
+    ? "试一试的候选：<b>键角 180° 时全部成立</b>"
+    : "试一试：这些<b>不</b>在本群里";
+  $$(".op[data-op=Cinf]").forEach((b) => (b.hidden = !linear));
+  if (st.mol === "sncl2") {
+    const a = st.angle;
+    $("#ang-out").textContent = (Math.abs(a - 180) < 1e-9 ? "180" : n1(a)) + "°";
+    $("#ang-note").innerHTML = linear
+      ? "线形（假想的 SnCl₂，或真实的 HgCl₂）：<i>z</i> 轴上的 <i>C</i><sub>2</sub> 降级为无穷多条 ⊥<i>C</i><sub>2</sub> 之一，<i>y</i> 轴升格为 <i>C</i><sub>∞</sub>，<i>σ</i><sub>v</sub>(<i>xz</i>) 变成 <i>σ</i><sub>h</sub>。点群升为 " + pgHTML("D∞h") + "。"
+      : Math.abs(a - SNCL_ANGLE) < 0.05
+        ? "气相电子衍射实测 98.1°（Nasarenko 等 1985）。"
+        : `假想几何：只要不是 180°，点群就仍是 ${pgHTML("C2v")}——点群只问“有哪些对称元素”，不问角度具体多大。`;
+  }
+}
+
+function setMol(id) {
+  if (locked()) return;
+  st.mol = id;
+  document.body.dataset.mol = id;
+  $$("[data-mol-tab]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.molTab === id)));
+  st.tried = {};
+  buildMol();
+  paintReadout();
+  paintTried();
+  paintNet();
+  resultEl.className = "result";
+  resultEl.innerHTML = id === "phen"
+    ? "点一个操作按钮。分子会真的转过去、或穿过镜面；虚线圈是原来的位置。"
+    : "SnCl₂ 只有 3 个原子，更容易看清每个操作把谁送到了哪里。拖动下方滑块可以改变键角。";
+  fillTable();
+}
+
+function setAngle(a) {
+  st.angle = Math.min(180, Math.max(60, a));
+  $("#ang").value = st.angle;
+  buildMol();
+  paintReadout();
+  st.tried = {};
+  paintTried();
+  paintNet();
+}
+
+// ───────── 视角 ─────────
+const VIEWS = { oblique: [-36, 17], face: [0, 0], top: [0, 89.9], side: [90, 0] };
+async function goView(name) {
+  const [y1, p1] = VIEWS[name].map((d) => d * DEG), y0 = st.yaw, p0 = st.pitch;
+  let dy = y1 - y0;
+  dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+  await tween(550, (t) => { st.yaw = y0 + dy * t; st.pitch = p0 + (p1 - p0) * t; });
+}
+function initDrag() {
+  let drag = null;
+  stage.addEventListener("pointerdown", (e) => { drag = [e.clientX, e.clientY, st.yaw, st.pitch, e.pointerType]; stage.setPointerCapture(e.pointerId); });
+  stage.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    st.yaw = drag[2] + (e.clientX - drag[0]) * 0.6 * DEG;
+    if (drag[4] === "mouse" || drag[4] === "pen") st.pitch = Math.max(-89.9 * DEG, Math.min(89.9 * DEG, drag[3] + (e.clientY - drag[1]) * 0.6 * DEG));
+    st.dirty = true;
+  });
+  const end = () => (drag = null);
+  stage.addEventListener("pointerup", end);
+  stage.addEventListener("pointercancel", end);
+  stage.addEventListener("keydown", (e) => {
+    const k = { ArrowLeft: [-8, 0], ArrowRight: [8, 0], ArrowUp: [0, -8], ArrowDown: [0, 8] }[e.key];
+    if (!k) return;
+    e.preventDefault();
+    st.yaw += k[0] * DEG;
+    st.pitch = Math.max(-89.9 * DEG, Math.min(89.9 * DEG, st.pitch + k[1] * DEG));
+    st.dirty = true;
+  });
+  const fit = () => { const w = stage.getBoundingClientRect().width || 600; labelK = Math.min(1.7, Math.max(1, 600 / w)); st.dirty = true; };
+  new ResizeObserver(fit).observe(stage);
+  fit();
+}
+
+// ───────── 流程图里的"演示"按钮 ─────────
+function stageInView() {
+  const r = stage.getBoundingClientRect();
+  return r.top >= -r.height * 0.3 && r.bottom <= innerHeight + r.height * 0.3;
+}
+async function demo(spec) {
+  if (locked()) return;
+  st.demo = true; // 整段演示期间（含步骤之间的停顿）锁住所有控件
+  setBusy();
+  try {
+    if (!stageInView()) { stage.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" }); await sleep(650); }
+    if (spec === "angle180") {
+      const a0 = st.angle;
+      await tween(1300, (t) => setAngle(a0 + (180 - a0) * t));
+      resultEl.className = "result ok";
+      resultEl.innerHTML = `<b>拉直到 180° 后：</b>点群变成 ${pgHTML("D∞h")}。真实的 SnCl₂ 做不到这一点——Sn 上那对孤对电子要占一个方向。2.5 秒后回到 98.1°。`;
+      await sleep(2500);
+      await tween(1100, (t) => setAngle(180 + (SNCL_ANGLE - 180) * t));
+      setAngle(SNCL_ANGLE);
+      return;
+    }
+    if (spec.startsWith("view:")) { await goView(spec.slice(5)); return; }
+    if (st.hist.length) { resetPose(false); await sleep(250); }
+    const ids = spec.split(",");
+    for (const [k, id] of ids.entries()) {
+      await runOp(id, true);
+      if (k < ids.length - 1) await sleep(OPS[id].cand ? 500 : 1300);
+    }
+  } finally {
+    st.demo = false;
+    setBusy();
+  }
+}
+
+// ───────── 2D 小图：画廊、答案卡 ─────────
+function draw2D(mol, { s = 21, pad = 22, label = "", lp = false } = {}) {
+  const E = findElements(mol.atoms), C = classify(mol.atoms, E);
+  const heavy = mol.atoms.filter((a) => a.el !== "H");
+  const pt = (p) => [p[1] * s, -p[2] * s];
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const a of heavy) { const [x, y] = pt(a.pos); x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  const X = Math.max(Math.abs(x0), Math.abs(x1)) + pad, Y = Math.max(Math.abs(y0), Math.abs(y1)) + pad + (lp ? 10 : 0);
+  const R = Math.hypot(X, Y);
+  let o = "";
+  const line = (d, cls) => { const [dx, dy] = [d[1], -d[2]], L = Math.hypot(dx, dy); return `<line class="${cls}" x1="${(-dx / L * R).toFixed(1)}" y1="${(-dy / L * R).toFixed(1)}" x2="${(dx / L * R).toFixed(1)}" y2="${(dy / L * R).toFixed(1)}"/>`; };
+  if (C.linear) {
+    o += line(E.linearAxis, "m-cinf");
+    o += line(cross(E.linearAxis, [1, 0, 0]), "m-band");
+  } else {
+    for (const pl of E.planes) if (Math.abs(pl.normal[0]) < 0.999) o += line(cross(pl.normal, [1, 0, 0]), "m-band");
+    for (const ax of E.axes) if (Math.abs(ax.dir[0]) < 0.999) o += line(ax.dir, "m-c2");
+    for (const ax of E.axes) if (Math.abs(ax.dir[0]) >= 0.999) o += `<path class="m-lens" d="M-8,0Q0,-9 8,0Q0,9 -8,0Z"/>`;
+  }
+  if (E.inversion) o += `<circle class="m-inv" r="4.2"/>`;
+  for (const [i, j] of mol.bonds) {
+    const a = mol.atoms[i], b = mol.atoms[j];
+    if (a.el === "H" || b.el === "H") continue;
+    const p = pt(a.pos), q = pt(b.pos);
+    o += `<line class="m-bond" x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}"/>`;
+  }
+  for (const r of mol.rings || []) { const c = pt(r.center); o += `<circle class="m-arom" cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" r="${(0.56 * BOND * s).toFixed(1)}"/>`; }
+  for (const a of heavy) {
+    if (a.el === "C") continue;
+    const [x, y] = pt(a.pos), w = a.el.length > 1 ? 11 : 7.5;
+    o += `<circle class="m-knock" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${w + 1}"/><text class="m-at m-${a.el}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" dy=".36em">${a.el}</text>`;
+    if (lp && (a.el === "Sn")) o += `<circle class="m-lpd" cx="${(x - 3.6).toFixed(1)}" cy="${(y - 15).toFixed(1)}" r="2.1"/><circle class="m-lpd" cx="${(x + 3.6).toFixed(1)}" cy="${(y - 15).toFixed(1)}" r="2.1"/>`;
+  }
+  return { svg: `<svg class="mini" viewBox="${(-X).toFixed(1)} ${(-Y).toFixed(1)} ${(2 * X).toFixed(1)} ${(2 * Y).toFixed(1)}" role="img" aria-label="${label}（点群 ${C.group}）">${o}</svg>`, C, E };
+}
+
+function elementSummary(C, E) {
+  if (C.linear) return `<i>E</i> · <i>C</i><sub>∞</sub> · ∞<i>σ</i><sub>v</sub> · <i>σ</i><sub>h</sub> · <i>i</i> · ∞<i>C</i><sub>2</sub>`;
+  const nC2 = E.axes.filter((a) => a.n === 2).length;
+  const parts = ["<i>E</i>"];
+  if (nC2) parts.push(`${nC2 > 1 ? nC2 + " 条 " : ""}<i>C</i><sub>2</sub>`);
+  parts.push(`${E.planes.length > 1 ? E.planes.length + " 个 " : ""}<i>σ</i>`);
+  if (E.inversion) parts.push("<i>i</i>");
+  return parts.join(" · ") + ` · <i>h</i> = ${groupOrder(C.group)}`;
+}
+
+function buildGallery() {
+  const cards = [
+    ["anthracene", "蒽 anthracene", anthracene(), "三环<b>线形</b>稠合：多出两条 <i>C</i><sub>2</sub>、一个反演中心 <i>i</i>，升为 D 群。"],
+    ["phenanthrene", "菲 phenanthrene", phenanthreneFamily([]), "三环<b>角形</b>稠合：和邻二氮菲同一个骨架，同一个点群。"],
+    ["phen", "1,10-菲咯啉（本题 a）", phenanthreneFamily(["1", "10"]), "两个 N 正好是一对被 <i>C</i><sub>2</sub> 交换的位置，对称性没有降低。"],
+    ["phen17", "1,7-菲咯啉", phenanthreneFamily(["1", "7"]), "把一个 N 挪到 7 位：<i>C</i><sub>2</sub> 和 <i>σ</i><sub>v</sub>(<i>xz</i>) 都消失，只剩分子平面。"],
+    ["sncl2", "SnCl₂（本题 b，98.1°）", triatomic("Sn", "Cl", SNCL_ANGLE, SNCL), "AX₂E：Sn 上一对孤对电子把分子压弯。", true],
+    ["hgcl2", "HgCl₂（线形）", triatomic("Hg", "Cl", 180, HGCL), "AX₂：Hg(II) 价层没有孤对电子，分子是直的。"],
+  ];
+  $("#gallery").innerHTML = cards.map(([id, name, mol, note, lp]) => {
+    const { svg, C, E } = draw2D(mol, { label: name, lp, s: mol.atoms.length > 3 ? 19 : 26 });
+    return `<figure class="g-card${id === "phen" || id === "sncl2" ? " is-q" : ""}" data-pg="${C.group}">${svg}<figcaption><span class="g-name">${name}</span><span class="g-pg">${pgHTML(C.group)}</span><span class="g-el">${elementSummary(C, E)}</span><span class="g-note">${note}</span></figcaption></figure>`;
+  }).join("");
+  // 题目答案卡里的小图
+  $("#fig-a").innerHTML = draw2D(phenanthreneFamily(["1", "10"]), { label: "1,10-菲咯啉", s: 15, pad: 16 }).svg;
+  $("#fig-b").innerHTML = draw2D(triatomic("Sn", "Cl", SNCL_ANGLE, SNCL), { label: "SnCl₂", s: 24, pad: 18, lp: true }).svg;
+}
+
+// 键角量角器（VSEPR 一节）
+function buildProtractor() {
+  const cx = 160, cy = 40, r = 120;
+  const ray = (deg, cls, text, ty) => {
+    const h = (deg / 2) * DEG;
+    const a = [cx - r * Math.sin(h), cy + r * Math.cos(h)], b = [cx + r * Math.sin(h), cy + r * Math.cos(h)];
+    return `<g class="${cls}"><polyline points="${a[0].toFixed(1)},${a[1].toFixed(1)} ${cx},${cy} ${b[0].toFixed(1)},${b[1].toFixed(1)}"/><text x="${(b[0] + 6).toFixed(1)}" y="${(b[1] + ty).toFixed(1)}">${text}</text></g>`;
+  };
+  $("#protractor").innerHTML =
+    `<path class="pr-arc" d="M${cx - r},${cy} A${r},${r} 0 0 0 ${cx + r},${cy}"/>` +
+    ray(180, "pr-180", "180° 线形 AX₂（HgCl₂）", -8) +
+    ray(120, "pr-120", "120° AX₂E 的理想角", 4) +
+    ray(SNCL_ANGLE, "pr-sn", "98.1° SnCl₂ 实测（气相）", 4) +
+    `<circle class="pr-c" cx="${cx}" cy="${cy}" r="9"/><text class="pr-sn-t" x="${cx}" y="${cy}" dy=".35em">Sn</text>` +
+    `<g class="pr-lp"><ellipse cx="${cx}" cy="${cy - 22}" rx="9" ry="14"/><circle cx="${cx - 3.3}" cy="${cy - 22}" r="1.9"/><circle cx="${cx + 3.3}" cy="${cy - 22}" r="1.9"/></g>`;
+}
+
+// ───────── 延伸：特征标表与 3N 表示 ─────────
+function fillTable() {
+  const mol = st.mol === "phen" ? phenanthreneFamily(["1", "10"]) : triatomic("Sn", "Cl", SNCL_ANGLE, SNCL);
+  const r = cartesianAnalysis(mol.atoms), n = mol.atoms.length;
+  const row = (id, vals) => $$(`#${id} td.v`).forEach((td, k) => (td.textContent = String(vals[k]).replace("-", "−")));
+  row("t-un", r.unmoved);
+  row("t-pa", r.perAtom);
+  row("t-g", r.g3n);
+  const names = C2V.irreps.map((i) => i.name);
+  const irr = (nm) => `<i>${nm[0]}</i><sub>${nm[1]}</sub>`;
+  const sum = (ns) => ns.map((x, k) => (x ? `${x === 1 ? "" : x}${irr(names[k])}` : "")).filter(Boolean).join(" + ");
+  $("#t-mol").textContent = st.mol === "phen" ? "邻二氮菲（N = 22）" : "SnCl₂（N = 3）";
+  $("#red-lines").innerHTML = C2V.irreps.map((ir, k) => {
+    const terms = r.g3n.map((g, j) => `${g < 0 ? "(−" + -g + ")" : g}·${ir.chi[j] < 0 ? "(−1)" : "1"}`).join(" + ");
+    return `<div class="red"><span class="red-k">${irr(ir.name)}</span><span class="red-f">¼ [ ${terms} ] = <b>${r.n3n[k]}</b></span></div>`;
+  }).join("");
+  const vib = r.nVib.reduce((a, b) => a + b, 0);
+  const ir = r.nVib[0] + r.nVib[2] + r.nVib[3], raman = vib;
+  $("#t-sum").innerHTML =
+    `<p><span class="lhs">Γ<sub>3N</sub></span> = ${sum(r.n3n)} <span class="cnt">（共 ${3 * n} = 3N）</span></p>` +
+    `<p><span class="lhs">− Γ<sub>平动</sub></span> = ${sum(r.nT)}　<span class="lhs">− Γ<sub>转动</sub></span> = ${sum(r.nR)}</p>` +
+    `<p class="vib"><span class="lhs">Γ<sub>振动</sub></span> = ${sum(r.nVib)} <span class="cnt">（共 ${vib} = 3N − 6）</span></p>` +
+    `<p class="act">红外活性（<i>A</i><sub>1</sub>、<i>B</i><sub>1</sub>、<i>B</i><sub>2</sub>，对应 <i>z</i>、<i>x</i>、<i>y</i>）：<b>${ir}</b> 个；拉曼活性（四种都有二次项）：<b>${raman}</b> 个${r.nVib[1] ? `；其中 ${r.nVib[1]} 个 <i>A</i><sub>2</sub> 只有拉曼活性` : "；三个振动都同时有红外和拉曼活性"}。</p>`;
+}
+
+// ───────── 启动 ─────────
+function init() {
+  const mk = (id) => `<button type="button" class="op op-${OPS[id].cls || "cand"}" data-op="${id}"${OPS[id].linearOnly ? " hidden" : ""}><span class="op-sym">${OPS[id].html}</span><span class="op-sub">${OPS[id].sub}</span><span class="op-st" aria-hidden="true"></span></button>`;
+  $("#ops-true").innerHTML = GROUP_OPS.map(mk).join("");
+  $("#ops-cand").innerHTML = CAND_OPS.map(mk).join("");
+  $$(".op").forEach((b) => b.addEventListener("click", () => runOp(b.dataset.op)));
+  $$("[data-mol-tab]").forEach((b) => b.addEventListener("click", () => setMol(b.dataset.molTab)));
+  $$("[data-demo]").forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.demoMol && b.dataset.demoMol !== st.mol) setMol(b.dataset.demoMol);
+    demo(b.dataset.demo);
+  }));
+  $$("[data-view]").forEach((b) => b.addEventListener("click", () => goView(b.dataset.view)));
+  $("#reset").addEventListener("click", () => { if (!locked()) resetPose(); });
+  $("#ang").addEventListener("input", (e) => { if (!locked()) setAngle(+e.target.value); });
+  $$("[data-ang]").forEach((b) => b.addEventListener("click", () => { if (!locked()) setAngle(+b.dataset.ang); }));
+  $$("[data-show]").forEach((c) => c.addEventListener("change", () => { st.show[c.dataset.show] = c.checked; st.dirty = true; }));
+  initDrag();
+  buildGallery();
+  buildProtractor();
+  setMol("phen");
+  document.body.classList.add("js");
+  requestAnimationFrame(loop);
+  window.__sym = { st, runOp, setMol, setAngle, demo };
+}
+init();
+
+</script>
+</body>
+</html>
